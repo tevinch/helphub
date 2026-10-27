@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Required Quill content</title>
+  <link rel="stylesheet" href="/node_modules/quill/dist/quill.snow.css">
+  <style>
+    body { max-width: 48rem; margin: 3rem auto; padding: 0 1rem; font: 1rem/1.5 system-ui, sans-serif; color: #172033; }
+    #editor { min-height: 12rem; }
+    button[type=submit] { margin-top: 1rem; padding: .5rem 1rem; }
+    #content-error { color: #a31625; }
+    pre { overflow: auto; padding: 1rem; background: #f2f4f7; }
+  </style>
+</head>
+<body>
+  <h1>Required editor content</h1>
+  <p>Enter text or code, then submit. Blank lines and empty code blocks show an error. An image also counts as content.</p>
+  <form id="entry-form" action="/submit" method="post">
+    <label id="content-label">Content</label>
+    <div id="editor"></div>
+    <p id="content-error" role="alert" hidden>Enter text or add an image before submitting.</p>
+    <button type="submit">Submit</button>
+  </form>
+  <p id="status" role="status"></p>
+  <pre id="receipt" aria-label="Last accepted Delta"></pre>
+  <script src="/node_modules/quill/dist/quill.js"></script>
+  <script type="module" src="/app.mjs"></script>
+</body>
+</html>
