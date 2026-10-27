@@ -6,5 +6,6 @@ Small, runnable examples for practical development questions. Each example expla
 | --- | --- |
 | [Calculator input](examples/calculator-input) | Retry invalid console input while keeping fractional arithmetic. |
 | [Custom Lisp definitions](examples/custom-lisp-tags) | Navigate custom Common Lisp and Elisp declarations from Treemacs. |
+| [FeatherScroll navigation](examples/feather-snap-scroll) | Scroll to sections and settle gradually after wheel input. |
 
 The examples are free to use under the MIT license.

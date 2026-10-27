@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section scrolling with header clearance</title>
+<link rel="stylesheet" href="node_modules/lenis/dist/lenis.css">
+<style>
+  :root { --header-offset: 72px; }
+  html { scroll-behavior: auto; scroll-snap-type: none; }
+  body { margin: 0; color: #233047; background: #f3f6fa; font: 18px/1.6 system-ui, sans-serif; }
+  nav { position: fixed; top: 0; inset-inline: 0; z-index: 2; height: 56px; display: flex; align-items: center; gap: 24px; padding-inline: 24px; background: #fff; box-shadow: 0 1px 6px #18314a22; }
+  a { color: #155ba4; }
+  main { padding: 80px 24px 0; }
+  .panel { box-sizing: border-box; position: relative; min-height: 720px; margin: 0 0 24px; padding: 24px; background: #fff; border: 1px solid #d9e1eb; border-radius: 12px; }
+  .snap-point { position: absolute; top: calc(-1 * var(--header-offset)); left: 0; width: 1px; height: 1px; pointer-events: none; }
+  #status { position: fixed; bottom: 12px; right: 12px; padding: 8px 12px; background: #173858; color: #fff; border-radius: 6px; }
+  .tail { height: 800px; }
+  input { display: block; width: min(90%, 28rem); padding: 8px; font: inherit; }
+</style>
+<nav aria-label="Sections"><a href="#intro">Intro</a><a href="#middle">Middle</a><a href="#end">End</a></nav>
+<main>
+  <section class="panel" id="intro"><span class="snap-point" aria-hidden="true"></span><h1>Scroll to a section</h1><p>Use a link, then scroll with the wheel. Each section settles below the fixed navigation.</p><p id="ordinary-content">This ordinary paragraph stays in the document.</p><label for="notes">Your note</label><input id="notes" value="Existing note"></section>
+  <section class="panel" id="middle"><span class="snap-point" aria-hidden="true"></span><h2>Middle</h2><p>Scroll forward to the last section or back to the introduction.</p></section>
+  <section class="panel" id="end"><span class="snap-point" aria-hidden="true"></span><h2>End</h2><p>The space below allows this section to align beneath the fixed navigation.</p></section>
+  <div class="tail" aria-hidden="true"></div>
+</main>
+<output id="status" aria-live="polite">Choose a section.</output>
+<script type="module" src="example.js"></script>
+</html>
