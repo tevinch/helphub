@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Paragraph classes in Quill</title>
+    <link rel="stylesheet" href="./node_modules/quill/dist/quill.snow.css">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main>
+      <h1>Paragraph classes in Quill</h1>
+      <p>Edit the colored paragraphs, export their Delta, clear the editor, then restore the saved content in a new editor.</p>
+      <div class="actions" aria-label="Document actions">
+        <button id="reset" type="button">Replace with sample</button>
+        <button id="toggle" type="button">Toggle first paragraph A / B</button>
+        <button id="export" type="button">Export JSON</button>
+        <button id="clear" type="button">Clear editor</button>
+        <button id="restore" type="button" disabled>Restore in new editor</button>
+      </div>
+      <div id="editor-host"></div>
+      <p id="status" role="status" aria-live="polite">The first paragraph uses class-a; the second uses class-b.</p>
+      <label for="saved-json">Exported Delta JSON</label>
+      <textarea id="saved-json" rows="15" readonly spellcheck="false" placeholder="Select Export JSON to save the current document here."></textarea>
+      <p>Class A stores <code>customKey: "a"</code> on its newline; class B stores <code>"b"</code>. The text, existing formatting and these values are restored together.</p>
+    </main>
+    <script src="./node_modules/quill/dist/quill.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

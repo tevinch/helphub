@@ -1,0 +1,10 @@
+{
+  "name": "paragraph-class-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node server.mjs", "test": "node check.mjs" },
+  "dependencies": { "quill": "2.0.3" },
+  "devDependencies": { "playwright": "1.64.1" }
+}
