@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Accessible name rule comparison</title>
+<main>
+<h1>Accessible name rule comparison</h1>
+<p>Reduced naming fixtures for rule diagnostics. These are not functional menu implementations.</p>
+<section id="original" aria-label="Original unnamed controls">
+  <div class="icon-toolbar" role="menubar">
+    <div id="raw-div" role="menuitem"><i class="icon-action-1"></i></div>
+    <button id="raw-button" role="menuitem"><i class="icon-action-2"></i></button>
+    <a id="raw-link" href="#" role="menuitem"><i class="icon-action-3"></i></a>
+  </div>
+</section>
+<section id="named" aria-label="Controls with names">
+  <div class="icon-toolbar" role="menubar">
+    <div id="named-div" role="menuitem" aria-label="Open"><i class="icon-action-1" aria-hidden="true"></i></div>
+    <button id="named-button" role="menuitem" aria-label="Save"><i class="icon-action-2" aria-hidden="true"></i></button>
+    <a id="named-link" href="#" role="menuitem" aria-label="Help"><i class="icon-action-3" aria-hidden="true"></i></a>
+  </div>
+</section>
+<p id="sentinel">Existing document content remains unchanged.</p>
+</main>
+</html>
