@@ -1,0 +1,13 @@
+{
+  "name": "romm-extra-folders",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A small manifest example for placing extra files beside an Igir output collection.",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "dependencies": {
+    "igir": "5.8.0"
+  }
+}
