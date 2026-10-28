@@ -1,0 +1,8 @@
+/vendor/
+/node_modules/
+/var/
+/public/assets/
+/test-results/
+/playwright-report/
+/config/reference.php
+/config/bundles.php

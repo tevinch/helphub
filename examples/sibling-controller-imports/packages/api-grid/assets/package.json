@@ -1,0 +1,11 @@
+{
+  "name": "@guide/api-grid-bundle",
+  "private": true,
+  "type": "module",
+  "symfony": {
+    "importmap": {
+      "@guide/grid-bundle/src/controllers/grid_controller.js": "path:@guide/grid-bundle/src/controllers/grid_controller.js",
+      "@guide/api-grid-bundle/controller": "path:%PACKAGE%/src/controllers/api_grid_controller.js"
+    }
+  }
+}

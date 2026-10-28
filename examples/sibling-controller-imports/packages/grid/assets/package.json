@@ -1,0 +1,10 @@
+{
+  "name": "@guide/grid-bundle",
+  "private": true,
+  "type": "module",
+  "symfony": {
+    "importmap": {
+      "@guide/grid-bundle/controller": "path:%PACKAGE%/src/controllers/grid_controller.js"
+    }
+  }
+}

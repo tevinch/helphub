@@ -1,0 +1,19 @@
+{
+  "name": "guide/grid-bundle",
+  "version": "1.0.0",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "keywords": [
+    "symfony-ux"
+  ],
+  "require": {
+    "php": ">=8.4",
+    "symfony/http-kernel": "^8.1",
+    "symfony/dependency-injection": "^8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Guide\\Grid\\": "src/"
+    }
+  }
+}

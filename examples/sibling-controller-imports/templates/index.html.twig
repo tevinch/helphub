@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Sibling controller imports</title>{{ importmap('app') }}</head>
+<body>
+  <h1>Sibling controller imports</h1>
+  <p data-testid="existing-content">Existing content is loading</p>
+  <section data-controller="api-grid">
+    <h2>API Grid extends Grid</h2>
+    <p data-api-grid-target="status" data-testid="api-status">Not connected</p>
+    <button data-action="api-grid#add">Add API row</button>
+    <output data-api-grid-target="result" data-testid="api-result">No API rows</output>
+  </section>
+  <section data-controller="grid">
+    <h2>Grid through its owner alias</h2>
+    <p data-grid-target="status" data-testid="grid-status">Not connected</p>
+    <button data-action="grid#add">Add grid row</button>
+    <output data-grid-target="result" data-testid="grid-result">No grid rows</output>
+  </section>
+</body>
+</html>
