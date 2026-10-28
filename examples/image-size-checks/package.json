@@ -1,0 +1,1 @@
+{"name":"quill-image-size-checks","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test image-policy.test.mjs && node verify.mjs"},"dependencies":{"quill":"2.0.3"},"devDependencies":{"playwright":"1.64.1"},"engines":{"node":">=20"}}
