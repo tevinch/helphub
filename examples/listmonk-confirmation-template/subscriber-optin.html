@@ -1,0 +1,23 @@
+{{ define "subscriber-optin" }}
+{{ template "header" . }}
+
+<h2>One more step to join the newsletter</h2>
+<p>Hello {{ .Subscriber.FirstName }},</p>
+<p>Please confirm your subscription to:</p>
+<ul>
+    {{ range .Lists }}
+        {{ if eq .Type "public" }}
+            <li>{{ .Name }}</li>
+        {{ else }}
+            <li>{{ L.Ts "email.optin.privateList" }}</li>
+        {{ end }}
+    {{ end }}
+</ul>
+<p>
+    <a href="{{ .OptinURL }}" class="button">Confirm my subscription</a>
+</p>
+<p>If you did not request this email, you can ignore it.</p>
+<p><a href="{{ .UnsubURL }}?manage=true">{{ L.T "email.unsub" }}</a></p>
+
+{{ template "footer" }}
+{{ end }}
