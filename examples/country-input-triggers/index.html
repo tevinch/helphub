@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false}'>
+  <title>Country and city inputs</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/htmx/__VERSION__.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Country and city inputs</h1>
+    <p>Using htmx __VERSION__. Change a country to load its cities.</p>
+    <p><a href="/?version=2.0.11">htmx 2.0.11</a> · <a href="/?version=4.0.0">htmx 4.0.0</a></p>
+    <form method="post" action="/submit">
+      <fieldset>
+        <legend>Destination</legend>
+        <ul data-source="city">
+          <li><label><input type="radio" name="country" value="fr"> France</label></li>
+          <li><label><input type="radio" name="country" value="de"> Germany</label></li>
+        </ul>
+        <label for="city">City</label>
+        __CITY__
+      </fieldset>
+      <fieldset>
+        <legend>Shipping destination</legend>
+        <ul data-source="shipping_city">
+          <li><label><input type="radio" name="shipping_country" value="fr"> Shipping France</label></li>
+          <li><label><input type="radio" name="shipping_country" value="de"> Shipping Germany</label></li>
+        </ul>
+        <label for="shipping_city">Shipping city</label>
+        __SHIPPING_CITY__
+      </fieldset>
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes"></textarea>
+      <label for="other">Other field</label>
+      <input id="other" name="other">
+      <button type="submit">Submit form</button>
+    </form>
+  </main>
+</body>
+</html>

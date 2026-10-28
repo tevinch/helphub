@@ -20,5 +20,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Cell row selection](examples/row-selection) | Toggle complete rows from data cells while keeping ranges, dragging and subsequent selection. |
 | [Image size checks](examples/image-size-checks) | Limit new Quill images across file and HTML paste routes, then export and restore checked Delta content. |
 | [File read policy](examples/file-read-policy) | List mock files while testing one async read failure through the existing file-system interface. |
+| [Country input triggers](examples/country-input-triggers) | Refresh the intended city options from country inputs with the same binding in two htmx versions. |
 
 The examples are free to use under the MIT license.

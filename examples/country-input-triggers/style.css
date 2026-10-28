@@ -1,0 +1,8 @@
+body { margin: 2rem; font: 1rem/1.5 system-ui, sans-serif; color: #18212b; background: #f7f9fc; }
+main { max-width: 42rem; margin: auto; }
+fieldset { margin-block: 1rem; border: 1px solid #9aa8b8; border-radius: .4rem; background: white; }
+ul { padding: 0; list-style: none; }
+label { display: block; margin-top: .5rem; }
+select, textarea, #other { box-sizing: border-box; width: 100%; padding: .5rem; font: inherit; }
+button { margin-top: 1rem; padding: .6rem 1rem; font: inherit; }
+a { color: #0755a1; }
