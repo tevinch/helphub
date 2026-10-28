@@ -1,0 +1,13 @@
+BASE <https://example.org/>
+PREFIX fxe: <http://sparql.xyz/facade-x/engine/>
+PREFIX xyz: <http://sparql.xyz/facade-x/data/>
+
+CONSTRUCT { ?subject <urn:example:label> ?label }
+WHERE {
+  SERVICE <x-sparql-anything:> {
+    fxe:properties fxe:location ?_input ; fxe:csv.headers true .
+    ?row xyz:subject ?source_subject ; xyz:text ?source_text ; xyz:lang ?source_lang .
+  }
+  BIND(IRI(?source_subject) AS ?subject)
+  BIND(STRLANG(?source_text, ?source_lang) AS ?label)
+}

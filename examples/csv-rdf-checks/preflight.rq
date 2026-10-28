@@ -1,0 +1,24 @@
+BASE <https://example.org/>
+PREFIX fx: <http://sparql.xyz/facade-x/ns/>
+PREFIX fxe: <http://sparql.xyz/facade-x/engine/>
+PREFIX xyz: <http://sparql.xyz/facade-x/data/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?record ?source_subject ?source_text ?source_lang
+       ?subject ?label ?subject_ok ?label_ok
+WHERE {
+  SERVICE <x-sparql-anything:> {
+    fxe:properties fxe:location ?_input ; fxe:csv.headers true .
+    ?root a fx:Root ; ?slot ?row .
+    FILTER(?slot != rdf:type)
+    OPTIONAL { ?row xyz:subject ?source_subject }
+    OPTIONAL { ?row xyz:text ?source_text }
+    OPTIONAL { ?row xyz:lang ?source_lang }
+    BIND(fx:cardinal(?slot) AS ?record)
+  }
+  BIND(IRI(?source_subject) AS ?subject)
+  BIND(STRLANG(?source_text, ?source_lang) AS ?label)
+  BIND(BOUND(?subject) AS ?subject_ok)
+  BIND(BOUND(?label) AS ?label_ok)
+}
+ORDER BY ?record

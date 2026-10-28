@@ -1,0 +1,6 @@
+subject,text,lang
+https://example.org/ok,"Café, ready",en
+some space,Skipped,en
+https://example.org/empty,Missing language,
+https://example.org/two,"Line one
+Line two",en-US
