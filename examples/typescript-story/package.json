@@ -1,0 +1,38 @@
+{
+  "name": "quiet-study",
+  "version": "1.0.0",
+  "description": "An editable TypeScript story with two rooms and a key.",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:browser": "sharpee build-browser",
+    "introspect": "sharpee introspect",
+    "dev": "tsc --watch"
+  },
+  "sharpee": {
+    "themes": [
+      "modern-dark",
+      "retro-terminal",
+      "paper",
+      "system-6"
+    ],
+    "author": "Tevinch",
+    "title": "Quiet Study"
+  },
+  "dependencies": {
+    "@sharpee/sharpee": "5.5.0",
+    "@sharpee/world-model": "5.5.0"
+  },
+  "devDependencies": {
+    "@sharpee/devkit": "5.5.0",
+    "typescript": "5.9.3"
+  },
+  "keywords": [
+    "interactive-fiction",
+    "sharpee",
+    "text-adventure"
+  ],
+  "author": "Tevinch",
+  "license": "MIT"
+}

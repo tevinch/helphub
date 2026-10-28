@@ -12,5 +12,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Article equations](examples/article-math) | Save, render and reopen native Quill formulas alongside article content. |
 | [CSV to RDF checks](examples/csv-rdf-checks) | Diagnose failed expressions before producing the intended RDF graph. |
 | [Accessible name rules](examples/accessible-name-rules) | Compare the naming rules applied to menu items built from divs, buttons and links. |
+| [TypeScript story](examples/typescript-story) | Scaffold, build, play and revise a terminal story without writing Chord source. |
 
 The examples are free to use under the MIT license.
