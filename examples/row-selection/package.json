@@ -1,0 +1,26 @@
+{
+  "name": "cell-row-selection-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "test": "node check.mjs"
+  },
+  "dependencies": {
+    "@glideapps/glide-data-grid": "6.0.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "lodash": "4.17.21",
+    "marked": "4.3.0",
+    "react-responsive-carousel": "3.2.23"
+  },
+  "devDependencies": {
+    "vite": "5.4.21",
+    "playwright": "1.64.1"
+  }
+}

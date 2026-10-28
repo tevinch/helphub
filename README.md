@@ -17,5 +17,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [TexSoup node identity](examples/tex-node-identity) | Recognize the same parsed expression reached through different navigation paths. |
 | [Condition expressions](examples/condition-grammar) | Keep one expression grammar while distinguishing struct literals from condition bodies. |
 | [Fixed model snapshot](examples/model-snapshot) | Retain exact Stanza resources and model bytes, then run the verified local pipeline offline. |
+| [Cell row selection](examples/row-selection) | Toggle complete rows from data cells while keeping ranges, dragging and subsequent selection. |
 
 The examples are free to use under the MIT license.
