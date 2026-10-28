@@ -14,5 +14,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Accessible name rules](examples/accessible-name-rules) | Compare the naming rules applied to menu items built from divs, buttons and links. |
 | [TypeScript story](examples/typescript-story) | Scaffold, build, play and revise a terminal story without writing Chord source. |
 | [.NET test runtimes](examples/side-by-side-tests) | Build an older target with a newer SDK and run its tests in a separate root inside a Conda environment. |
+| [TexSoup node identity](examples/tex-node-identity) | Recognize the same parsed expression reached through different navigation paths. |
 
 The examples are free to use under the MIT license.

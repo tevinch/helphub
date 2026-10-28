@@ -1,0 +1,1 @@
+TexSoup==0.3.3 --hash=sha256:0ad8643f7b51a4903de87c3763a090343fc73eaf87cd70202e2bfe6b22e0ac97
