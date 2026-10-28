@@ -10,4 +10,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Paragraph classes in Delta](examples/paragraph-class-delta) | Keep paragraph classes through editing and JSON export/restore. |
 | [Required Quill content](examples/required-quill-content) | Reject empty code blocks and submit meaningful content without changing it. |
 
+| [Article equations](examples/article-math) | Save, render and reopen native Quill formulas alongside article content. |
+
 The examples are free to use under the MIT license.
