@@ -1,0 +1,48 @@
+[
+  {
+    "command": "solid.box",
+    "params": {
+      "length": 30,
+      "width": 10,
+      "height": 8,
+      "corner": [0, 0, 0],
+      "operation": "new",
+      "body_name": "Body1",
+      "name": "First rectangle"
+    }
+  },
+  {
+    "command": "solid.box",
+    "params": {
+      "length": 10,
+      "width": 30,
+      "height": 8,
+      "corner": [45, 35, 3],
+      "operation": "new",
+      "body_name": "Body2",
+      "name": "Second rectangle"
+    }
+  },
+  {
+    "command": "construct.plane.offset",
+    "params": {
+      "base": {"face": [30, 5, 4], "body": "Body1", "index": 2},
+      "offset": 0,
+      "name": "X face plane"
+    }
+  },
+  {
+    "command": "solid.align",
+    "params": {
+      "bodies": ["Body2"],
+      "from_face": [55, 50, 7],
+      "to_plane": "X face plane",
+      "flip": true,
+      "name": "Match positive X faces"
+    }
+  },
+  {
+    "command": "inspect.measure",
+    "params": {"bodies": ["Body1", "Body2"]}
+  }
+]
