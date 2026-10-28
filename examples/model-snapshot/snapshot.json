@@ -1,0 +1,13 @@
+{
+  "stanza_version": "1.15.0",
+  "resources_version": "1.15.0",
+  "resources_commit": "e11a9e67718a00f3256b065879d5bbadfc000647",
+  "model_commit": "810dca30ddb25c30582c019dbaeb3a3e040fb958",
+  "language": "en",
+  "processors": {"tokenize": "ewt_nocharlm", "mwt": "ewt"},
+  "files": {
+    "resources.json": {"size": 534550, "sha256": "c8103faccab8fcfadc57dd782991e95cb69bbc9c55e462786ec8f26f1c9b1fa0"},
+    "en/tokenize/ewt_nocharlm.pt": {"size": 644162, "sha256": "6ae118af27faac116dcd351b79b2a106d5ccfb56b59c835346347a328192981c"},
+    "en/mwt/ewt.pt": {"size": 487533, "sha256": "731c21049ba6e5a1a4c3788ad029001c2a1dfa871dad61b7b3698a3b06a3d376"}
+  }
+}
