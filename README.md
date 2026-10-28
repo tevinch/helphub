@@ -19,5 +19,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Fixed model snapshot](examples/model-snapshot) | Retain exact Stanza resources and model bytes, then run the verified local pipeline offline. |
 | [Cell row selection](examples/row-selection) | Toggle complete rows from data cells while keeping ranges, dragging and subsequent selection. |
 | [Image size checks](examples/image-size-checks) | Limit new Quill images across file and HTML paste routes, then export and restore checked Delta content. |
+| [File read policy](examples/file-read-policy) | List mock files while testing one async read failure through the existing file-system interface. |
 
 The examples are free to use under the MIT license.
