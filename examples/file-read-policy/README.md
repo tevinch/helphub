@@ -2,6 +2,8 @@
 
 A test may need `Directory.GetFiles` to list two files, while `File.ReadAllBytesAsync` can read only one. Testably's `DefaultAccessControlStrategy` decides access from a path and its extension data; it does not receive the operation. Denying a file there can also prevent enumeration.
 
+The [maintainer has since fixed the enumeration behavior](https://github.com/Testably/Testably.Abstractions/issues/1158#issuecomment-6474432861): directory listing should check the directories it opens, without checking access to each listed file. This example targets **7.1.1**. Prefer the native access-control strategy when using a release that includes that fix; the interface proxy below remains a method-specific test policy for the pinned version. The maintainer also describes a temporary flag-based workaround when a test can list and read in separate steps.
+
 This example keeps the application on `IFileSystem`. A small test-only [Castle interface proxy](https://www.castleproject.org/projects/dynamicproxy/) forwards calls to `MockFileSystem` and rejects `ReadAllBytesAsync` for one full path. The files remain in the mock.
 
 ```sh
