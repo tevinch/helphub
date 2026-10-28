@@ -15,5 +15,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [TypeScript story](examples/typescript-story) | Scaffold, build, play and revise a terminal story without writing Chord source. |
 | [.NET test runtimes](examples/side-by-side-tests) | Build an older target with a newer SDK and run its tests in a separate root inside a Conda environment. |
 | [TexSoup node identity](examples/tex-node-identity) | Recognize the same parsed expression reached through different navigation paths. |
+| [Condition expressions](examples/condition-grammar) | Keep one expression grammar while distinguishing struct literals from condition bodies. |
 
 The examples are free to use under the MIT license.

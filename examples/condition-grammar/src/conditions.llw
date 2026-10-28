@@ -1,0 +1,20 @@
+token If='if' Name='<name>' Int='<integer>';
+token LBrace='{' RBrace='}' LPar='(' RPar=')' Semi=';' Colon=':' Comma=',' EqEq='==' Plus='+';
+token Whitespace Comment;
+skip Whitespace Comment;
+start file;
+
+file: stmt*;
+stmt^: if_stmt | expr_stmt;
+if_stmt: 'if' condition block;
+condition: #1 expr #2;
+block: '{' stmt* '}';
+expr_stmt: expr ';';
+expr:
+  expr '+' expr @binary_expr
+| expr '==' expr @binary_expr
+| Name @name_expr [?1 '{' [field (',' field)*] '}' @struct_expr]
+| Int @int_expr
+| '(' #1 expr #2 ')' @paren_expr
+;
+field: Name ':' expr;

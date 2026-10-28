@@ -1,0 +1,19 @@
+[package]
+name = "condition-grammar"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[dependencies]
+logos = "=0.16.1"
+codespan-reporting = "=0.13.1"
+
+[build-dependencies]
+lelwel = "=0.10.4"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

@@ -1,0 +1,8 @@
+// A struct literal in normal expression mode.
+Point { x: 1 + 2 };
+
+// Parentheses enable the same expression rule inside a condition.
+if value == (Point { x: 3 }) {
+    if ready { Point {}; }
+}
+Point {};
