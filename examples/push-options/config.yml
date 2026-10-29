@@ -1,0 +1,6 @@
+customCommands:
+  - description: 'Push with ci.skip'
+    context: 'global'
+    command: 'git push --push-option=ci.skip'
+    output: 'popup'
+    outputTitle: 'Push with ci.skip'
