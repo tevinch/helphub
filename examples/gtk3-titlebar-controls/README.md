@@ -1,10 +1,8 @@
 # Larger WhiteSur GTK3 window controls
 
-**Native verification is pending.** This draft has not yet passed the real Gedit/xfwm4 checks described below.
-
 Gedit draws its GTK3 headerbar controls itself. The WhiteSur **xfwm4** normal, hdpi and xhdpi variants change window-manager decorations, so selecting a larger xfwm4 variant does not resize these Gedit controls.
 
-For GTK3 applications using WhiteSur's native headerbar controls, [controls.css](controls.css) increases both the clickable allocation and the painted artwork from 16 to 24 logical pixels. It keeps WhiteSur's own close, minimize, maximize and restore images and their state rules. Ordinary buttons, text and window-manager decorations are outside the selector.
+For GTK3 applications using WhiteSur's native headerbar controls, [controls.css](controls.css) sets the minimum control dimensions and background artwork canvas to 24 logical pixels instead of 16. In the native Gedit check, the control rectangles grew from **18 × 16 to 26 × 24 pixels**, and the painted circles from **14 × 14 to 22 × 22 pixels**. Theme styling adds to the minimum; the artwork includes transparent padding. WhiteSur's own close, minimize, maximize and restore images keep their state rules; ordinary buttons and text keep their sizing.
 
 ## Apply the setting
 
@@ -27,7 +25,7 @@ headerbar button.titlebutton.maximize {
 
 Save your work and fully close and reopen Gedit. A new window in an already running process may keep the previous CSS. Use the same value in the four size fields if you prefer another size.
 
-Changing only `min-width`/`min-height` enlarges the target while leaving the theme's painted control at 16px. Changing only `background-size` can clip the larger artwork inside the old target. Both parts are needed.
+Changing only `min-width`/`min-height` enlarges the target while leaving the theme's artwork canvas at 16px. Changing only `background-size` can clip the larger artwork inside the old target. Both parts are needed.
 
 This setting applies to native **GTK3** headerbar titlebuttons for this theme. GTK4/libadwaita, browser-drawn controls and sandboxed applications with their own configuration are separate cases. It does not change display scaling or replace application-specific accessibility settings.
 
@@ -39,7 +37,7 @@ Remove only the block between the two comments, save the file, and fully close a
 
 On a GTK3 Linux desktop with PyGObject installed, `python3 preview.py` opens a small native headerbar/text preview. `python3 preview.py --ssd` uses the window manager's titlebar for comparison. Both windows are ordinary throwaway examples.
 
-[CHECKS.md](CHECKS.md) describes the native Gedit/xfwm4 check and its limits. Its runner changes window-manager settings in an isolated D-Bus/X11 session; use the accompanying disposable workflow rather than running that checker against your everyday desktop.
+[CHECKS.md](CHECKS.md) gives the native Gedit/xfwm4 results, [successful workflow run](https://github.com/tevinch/helphub/actions/runs/40924787784) and limits. Its runner changes window-manager settings in an isolated D-Bus/X11 session; use the accompanying disposable workflow rather than running that checker against your everyday desktop.
 
 The official [WhiteSur installer](https://github.com/vinceliuice/WhiteSur-gtk-theme/blob/99247ecd219bdc1c7409baff062b4aafcf1102a7/libs/lib-install.sh) installs the xfwm4 variants separately. Its [GTK3 control rules](https://github.com/vinceliuice/WhiteSur-gtk-theme/blob/99247ecd219bdc1c7409baff062b4aafcf1102a7/src/sass/gtk/_common-3.0.scss#L4417) set the original 16px dimensions. GTK documents [user CSS loading](https://docs.gtk.org/gtk3/class.CssProvider.html) and [GtkHeaderBar controls](https://docs.gtk.org/gtk3/class.HeaderBar.html); Xfce documents [window-manager decoration settings](https://docs.xfce.org/xfce/xfwm4/preferences#style).
 
