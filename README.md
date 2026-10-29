@@ -35,4 +35,6 @@ Small, runnable examples for practical development questions. Each example expla
 
 | [C++ functions in Sere](examples/cpp-functions) | Bind simple C++ functions and build a native Sere application with matching types. |
 
+| [Shared client header](examples/shared-client-header) | Reuse an HTTP header default across Connect clients while preserving each call’s override and suppression. |
+
 The examples are free to use under the MIT license.

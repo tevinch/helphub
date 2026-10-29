@@ -1,0 +1,100 @@
+name: Native Connect HTTP header checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/shared-client-header/**'
+      - '.github/workflows/connect-header-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Verify the exact source and native HTTP behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_SERVER_URL" == "https://github.com" ]]
+          [[ "$GITHUB_REPOSITORY" == "tevinch/helphub" ]]
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]
+          work=$(mktemp -d "$RUNNER_TEMP/connect-header.XXXXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          source_dir="$work/source"
+          anon_git() {
+            env -i "PATH=$PATH" "HOME=$HOME" \
+              GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+              git -c credential.helper= -c http.extraHeader= "$@"
+          }
+          anon_git clone --depth=1 --filter=blob:none --no-checkout \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$source_dir"
+          anon_git -C "$source_dir" fetch --depth=1 origin "$GITHUB_SHA"
+          anon_git -C "$source_dir" checkout --detach "$GITHUB_SHA"
+          [[ "$(anon_git -C "$source_dir" rev-parse HEAD)" == "$GITHUB_SHA" ]]
+          example_dir="$source_dir/examples/shared-client-header"
+          python3 - "$example_dir" <<'PY'
+          import hashlib
+          from pathlib import Path
+          import sys
+          root = Path(sys.argv[1])
+          expected = {
+              'go.mod': 'ec58377805266106f5a3ed9b008560ca0491d210039fb5e08aa928fdcf618cad',
+              'go.sum': '63849df3b61295eefbbc9e977648d3c4c739c456b0478c441c99fee323931faf',
+              'default.go': 'b371d95639e459da114131b56047fe063f2ccfffddb5c5d9fd944d6b65dfaf82',
+              'default_test.go': '3111596a03bea58e5a028429b44790a33d30d5bae33222de2e7e33134a68e1c9',
+              'README.md': 'c75e69acf49d2ec67c330e8bb91268e6fec4cb75618d4af04c087fd9a6852b8c',
+              'LICENSE': 'e237753559ac3cfd97258b76b76e52d2409097d6df6189eda4b5ef8eed679b45',
+              '.gitignore': '50d82191031c995157d6d20cd52e35a1578fd11710632f49b8c6642491d434d2',
+          }
+          files = {str(p.relative_to(root)): p for p in root.rglob('*') if p.is_file()}
+          assert set(files) == set(expected), sorted(files)
+          for name, digest in expected.items():
+              assert not files[name].is_symlink(), name
+              assert hashlib.sha256(files[name].read_bytes()).hexdigest() == digest, name
+          print('Verified all seven reviewed source files at the exact workflow commit.')
+          PY
+          curl --disable --fail --location --retry 2 --proto '=https' --proto-redir '=https' \
+            --output "$work/go-metadata.json" 'https://go.dev/dl/?mode=json&include=all'
+          python3 - "$work/go-metadata.json" "$work/go.tar.gz" "$work/go.sha256" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          versions = json.loads(Path(sys.argv[1]).read_text())
+          release = [v for v in versions if v['version'] == 'go1.27.2']
+          assert len(release) == 1 and release[0]['stable'] is True
+          files = [f for f in release[0]['files']
+                   if f['os'] == 'linux' and f['arch'] == 'amd64' and f['kind'] == 'archive']
+          assert len(files) == 1
+          archive = files[0]
+          assert archive['filename'] == 'go1.27.2.linux-amd64.tar.gz'
+          assert archive['size'] == 70590635
+          expected = 'ecbadb99091a3f46e31f5f934b068b1864eafa7995211b39eaddf76996045fe5'
+          assert archive['sha256'] == expected
+          Path(sys.argv[3]).write_text(expected + '  ' + sys.argv[2] + '\n')
+          print('Official Go 1.27.2 linux/amd64 metadata SHA-256:', expected)
+          PY
+          curl --disable --fail --location --retry 2 --proto '=https' --proto-redir '=https' \
+            --output "$work/go.tar.gz" 'https://go.dev/dl/go1.27.2.linux-amd64.tar.gz'
+          [[ "$(stat -c %s "$work/go.tar.gz")" == 70590635 ]]
+          sha256sum --check "$work/go.sha256"
+          mkdir "$work/sdk" "$work/modules" "$work/build-cache" "$work/build-temp"
+          tar -xzf "$work/go.tar.gz" -C "$work/sdk"
+          native_go() {
+            env -i "PATH=$PATH" "HOME=$HOME" \
+              GOTOOLCHAIN=local GOENV=off GOWORK=off CGO_ENABLED=1 \
+              "GOMODCACHE=$work/modules" "GOCACHE=$work/build-cache" "GOTMPDIR=$work/build-temp" \
+              GOPROXY=https://proxy.golang.org GOSUMDB=sum.golang.org \
+              "$work/sdk/go/bin/go" "$@"
+          }
+          [[ "$(native_go version)" == 'go version go1.27.2 linux/amd64' ]]
+          cd "$example_dir"
+          native_go mod download
+          native_go mod verify
+          native_go test -count=1 -v ./...
+          native_go test -race -count=1 ./...
