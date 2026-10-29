@@ -37,4 +37,6 @@ Small, runnable examples for practical development questions. Each example expla
 
 | [Shared client header](examples/shared-client-header) | Reuse an HTTP header default across Connect clients while preserving each call’s override and suppression. |
 
+| [YAML in plain HTML](examples/yaml-classic-script) | Load the official browser file with a classic script tag and convert YAML without a bundler. |
+
 The examples are free to use under the MIT license.
