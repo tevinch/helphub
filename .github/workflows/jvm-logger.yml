@@ -1,0 +1,46 @@
+name: Rust JVM logger checks
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'examples/jvm-logger/**'
+      - '.github/workflows/jvm-logger.yml'
+permissions:
+  contents: read
+jobs:
+  native-logger:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CARGO_INCREMENTAL: '0'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: IntegralPilot/rustc_codegen_jvm
+          ref: 67e89c1b1e6ace5837da7d0a818ecde0c0660638
+          path: upstream-jvm
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly-2026-10-23
+          components: rustc-dev,rust-src,llvm-tools-preview,rustfmt
+      - name: Build pinned native backend and tools
+        run: python3 upstream-jvm/build.py ci
+      - name: Check real Rust to Java logging and omission controls
+        run: python3 examples/jvm-logger/check.py upstream-jvm --output check-results
+      - name: Save native results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-logger-results
+          path: check-results/
+          if-no-files-found: error
