@@ -1,0 +1,7 @@
+import native_math
+
+def main() -> i32:
+    print(native_math.add(20, 22))
+    print(native_math.add(-9, 4))
+    print(native_math.twice(21))
+    return 0

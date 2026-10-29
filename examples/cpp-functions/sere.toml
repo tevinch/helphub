@@ -1,0 +1,10 @@
+[project]
+name = "native_math_example"
+version = "0.1.0"
+kind = "app"
+
+[paths]
+entry = "src/main.sere"
+
+[build]
+native = true

@@ -1,0 +1,13 @@
+/bin/
+/build/
+/dist/
+/venv/
+/libs/native/build/
+/libs/.sere-lib/
+*.obj
+*.o
+*.lib
+*.a
+*.exe
+*.dll
+*.pdb

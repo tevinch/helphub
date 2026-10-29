@@ -33,4 +33,6 @@ Small, runnable examples for practical development questions. Each example expla
 
 | [Marker channel names](examples/marker-channel-names) | Check Backsub row indexing, repeated reference labels and explicit per-cycle background names on synthetic data. |
 
+| [C++ functions in Sere](examples/cpp-functions) | Bind simple C++ functions and build a native Sere application with matching types. |
+
 The examples are free to use under the MIT license.

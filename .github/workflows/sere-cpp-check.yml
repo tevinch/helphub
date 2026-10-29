@@ -1,0 +1,49 @@
+name: Sere C++ function checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/cpp-functions/**'
+      - '.github/workflows/sere-cpp-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-functions:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - name: Read the exact source revision
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:GITHUB_SERVER_URL -ne 'https://github.com' -or $env:GITHUB_REPOSITORY -ne 'tevinch/helphub') { throw 'Unexpected repository' }
+          git clone --quiet --no-checkout "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY.git" source
+          if ($LASTEXITCODE -ne 0) { throw 'Source download failed' }
+          git -C source checkout --quiet --detach $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Exact source checkout failed' }
+          $revision = (git -C source rev-parse HEAD | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0 -or $revision -ne $env:GITHUB_SHA) { throw 'Source revision differs' }
+      - name: Verify the official portable compiler
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'Sere-0.2.2-windows-x64-portable.zip'
+          Invoke-WebRequest -Uri 'https://github.com/Sere-Language/sere/releases/download/0.2.2/Sere-0.2.2-windows-x64-portable.zip' -OutFile $archive
+          $hash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne 'f55ad803922380dc6b5db0cf6036d3bfc05be18bbbc7725257f29bf869320bbb') { throw 'Portable compiler checksum differs' }
+          $destination = Join-Path $env:RUNNER_TEMP 'sere-0.2.2-portable'
+          Expand-Archive -LiteralPath $archive -DestinationPath $destination
+          $compilers = @(Get-ChildItem -LiteralPath $destination -Filter 'sere.exe' -Recurse -File | Where-Object { $_.Directory.Name -eq 'bin' })
+          if ($compilers.Count -ne 1) { throw 'Portable compiler layout differs' }
+          "SERE_CHECK_COMPILER=$($compilers[0].FullName)" >> $env:GITHUB_ENV
+          Write-Output "Official portable archive SHA256: $hash"
+          $PSVersionTable.PSVersion.ToString()
+      - name: Build and run native functions and failure controls
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & .\source\examples\cpp-functions\Verify.ps1 -CompilerPath $env:SERE_CHECK_COMPILER
