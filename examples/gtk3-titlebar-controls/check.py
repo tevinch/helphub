@@ -30,7 +30,9 @@ report = {"status": "running", "snapshots": {}, "state_differences": [], "checks
 processes = []
 
 def command(*parts, check=True):
-    return subprocess.run([str(x) for x in parts], check=check, text=True, capture_output=True).stdout.strip()
+    arguments = [str(x) for x in parts]
+    print(json.dumps({"command": arguments}), flush=True)
+    return subprocess.run(arguments, check=check, text=True, capture_output=True, timeout=20).stdout.strip()
 
 def wait_for(probe, message, seconds=15):
     deadline = time.monotonic() + seconds
