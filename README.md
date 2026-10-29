@@ -36,5 +36,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Rust JVM logging](examples/jvm-logger) | Convert Rust strings and launch a standalone JVM program with an external SLF4J provider. |
 | [Exact palette PNG](examples/exact-palette-png) | Export a bounded 4-bit texture with an exact palette, unchanged pixels and a file-size limit. |
 | [GTK3 titlebar controls](examples/gtk3-titlebar-controls) | Enlarge WhiteSur window controls while keeping their artwork, actions and existing CSS. |
+| [Precipitation intervals](examples/precipitation-intervals) | Label the preceding hour while retaining Meteostat timestamps, amounts and missing values. |
 
 The examples are free to use under the MIT license.
