@@ -242,12 +242,15 @@ try:
     text_nodes = [n for app in pyatspi.Registry.getDesktop(0) if app.get_process_id() == case["gedit"].pid
                   for n in descendants(app) if n.getRole() == pyatspi.ROLE_TEXT and n.getState().contains(pyatspi.STATE_EDITABLE)]
     require(bool(text_nodes), "Real Gedit editable document is accessible")
+    # Gedit 46.2 keeps the file's final newline implicit outside its buffer.
+    # Preserve that default rather than changing editor/document settings.
+    wait_for(lambda: text_nodes[0].queryText().getText(0, -1) == TEXT[:-1], "Original document loaded in the native Gedit buffer")
     text_nodes[0].queryComponent().grabFocus()
-    command("xdotool", "key", "--clearmodifiers", "ctrl+End")
+    command("xdotool", "key", "--clearmodifiers", "ctrl+End", "Return")
     added = "Added after resizing the titlebar."
     command("xdotool", "type", "--clearmodifiers", "--delay", "0", added)
     command("xdotool", "key", "--clearmodifiers", "ctrl+s")
-    wait_for(lambda: case["document"].read_text() == TEXT + added, "Gedit edit/save completed")
+    wait_for(lambda: case["document"].read_text() == TEXT + added + "\n", "Gedit edit/save completed with its implicit final newline")
     normal_hover = snapshot("maximize-hover", case["gedit"].pid, case["window"], "maximize")
     for repeat in range(2):
         click(wait_for(lambda: controls_for(case["gedit"].pid), "Controls before maximize")["maximize"])
@@ -273,7 +276,7 @@ try:
     state_difference("close-hover", "close-pressed", "close", "Native pressed artwork remains distinct")
     command("xdotool", "mouseup", "1")
     wait_for(lambda: case["gedit"].poll() is not None, "Native close control closes the saved throwaway document")
-    require(case["document"].read_text() == TEXT + added, "Saved document preserved after native close")
+    require(case["document"].read_text() == TEXT + added + "\n", "Saved document preserved after native close")
     require((case["config"] / "gtk.css").read_text() == SENTINEL + css, "Existing CSS and exact snippet preserved")
     finish_case(case)
 
