@@ -40,5 +40,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Flat tagged results](examples/tagged-results) | Round-trip flat JSON through a dataclass union field and restore the selected branch. |
 | [Typed Dart functions](examples/typed-functions) | Give JSFunction concrete primitive and custom-object signatures, then call both across the JavaScript boundary. |
 | [Frozen UTC reads](examples/frozen-utc) | Keep repeated clock reads exact when migrating freezegun tests to time-machine. |
+| [Named-zone JSON](examples/zoned-json) | Preserve a ZonedDateTime region, instant and nanoseconds through Jackson 3 JSON round trips. |
 
 The examples are free to use under the MIT license.
