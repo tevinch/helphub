@@ -27,4 +27,6 @@ Small, runnable examples for practical development questions. Each example expla
 
 | [MailFlow locale build](examples/mailflow-locale-build) | Register a supplied translation in the native language menu and build a personal frontend image. |
 
+| [Date picker padding](examples/date-picker-padding) | Add editor insets to one FlatLaf SwingX date picker and reapply them after a theme update. |
+
 The examples are free to use under the MIT license.
