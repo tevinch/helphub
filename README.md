@@ -22,5 +22,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [File read policy](examples/file-read-policy) | List mock files while testing one async read failure through the existing file-system interface. |
 | [Country input triggers](examples/country-input-triggers) | Refresh the intended city options from country inputs with the same binding in two htmx versions. |
 | [Postal request reason](examples/postal-request-reason) | Refresh postal hints on country changes and validate on focusout while keeping strict CSP. |
+| [Named cache backplanes](examples/named-cache-backplanes) | Keep default and named FusionCache instances coherent across replicas using separate native adapters. |
 
 The examples are free to use under the MIT license.
