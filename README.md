@@ -24,21 +24,14 @@ Small, runnable examples for practical development questions. Each example expla
 | [Postal request reason](examples/postal-request-reason) | Refresh postal hints on country changes and validate on focusout while keeping strict CSP. |
 | [Named cache backplanes](examples/named-cache-backplanes) | Keep default and named FusionCache instances coherent across replicas using separate native adapters. |
 | [Lambda metric tests](examples/lambda-metric-tests) | Restore metric assertions and configure local tracing before pytest starts. |
-
 | [MailFlow locale build](examples/mailflow-locale-build) | Register a supplied translation in the native language menu and build a personal frontend image. |
-
 | [Date picker padding](examples/date-picker-padding) | Add editor insets to one FlatLaf SwingX date picker and reapply them after a theme update. |
-
 | [Runtime CSV headers](examples/runtime-csv-headers) | Select export headers at runtime while retaining CsvHelper generated record serialization. |
-
 | [Marker channel names](examples/marker-channel-names) | Check Backsub row indexing, repeated reference labels and explicit per-cycle background names on synthetic data. |
-
 | [C++ functions in Sere](examples/cpp-functions) | Bind simple C++ functions and build a native Sere application with matching types. |
-
 | [Shared client header](examples/shared-client-header) | Reuse an HTTP header default across Connect clients while preserving each call’s override and suppression. |
-
 | [YAML in plain HTML](examples/yaml-classic-script) | Load the official browser file with a classic script tag and convert YAML without a bundler. |
-
 | [Push options](examples/push-options) | Send ci.skip from a Lazygit custom command while retaining ordinary push behavior. |
+| [Availability classes](examples/stock-by-class) | Map class tokens to availability while delivery text and quantities vary. |
 
 The examples are free to use under the MIT license.

@@ -1,0 +1,9 @@
+{
+  "type": "selector",
+  "value": "span.delivery-information|class",
+  "match": {
+    "default": "in_stock",
+    "out_of_stock": {"type": "regex", "value": "(?:^|\\s)delivery-soldout(?:\\s|$)"},
+    "pre_order": {"type": "regex", "value": "(?:^|\\s)delivery-preorder(?:\\s|$)"}
+  }
+}

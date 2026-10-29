@@ -1,0 +1,12 @@
+[
+  {"name":"available with nested quantity and delivery text","html":"<span class=\"delivery-information delivery-available\">Available now · <span>100+ items</span> · <span>1–3 days</span></span>","raw":"delivery-information delivery-available","status":"in_stock"},
+  {"name":"available after quantity and text change","html":"<span class=\"delivery-available delivery-information extra\">Ready to ship · <span>2 items</span> · <span>4–6 days</span></span>","raw":"delivery-available delivery-information extra","status":"in_stock"},
+  {"name":"sold out","html":"<span class=\"delivery-information delivery-soldout\">Currently unavailable</span>","raw":"delivery-information delivery-soldout","status":"out_of_stock"},
+  {"name":"sold out with changed text and reordered classes","html":"<span class=\"extra delivery-soldout delivery-information\"><strong>No units remain</strong></span>","raw":"extra delivery-soldout delivery-information","status":"out_of_stock"},
+  {"name":"illustrative preorder class","html":"<span class=\"delivery-information delivery-preorder extra\">Reserve for next month</span>","raw":"delivery-information delivery-preorder extra","status":"pre_order"},
+  {"name":"empty text still has a soldout class","html":"<span class=\"delivery-soldout delivery-information\"></span>","raw":"delivery-soldout delivery-information","status":"out_of_stock"},
+  {"name":"similar class is not a soldout token","html":"<span class=\"delivery-information delivery-soldout-extra\">Different state</span>","raw":"delivery-information delivery-soldout-extra","status":"in_stock"},
+  {"name":"unrelated soldout marker is ignored","html":"<aside class=\"delivery-soldout\">Related item</aside><span class=\"delivery-information delivery-available\">Available</span>","raw":"delivery-information delivery-available","status":"in_stock"},
+  {"name":"unknown nonempty class uses the configured default","html":"<span class=\"delivery-information delivery-unknown\">Ask the store</span>","raw":"delivery-information delivery-unknown","status":"in_stock"},
+  {"name":"missing indicator is native InStock","html":"<p>No delivery indicator on this page</p>","raw":null,"status":"in_stock"}
+]
