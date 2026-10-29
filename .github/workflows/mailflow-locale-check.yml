@@ -1,0 +1,57 @@
+name: MailFlow locale checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/mailflow-locale-build/**'
+      - '.github/workflows/mailflow-locale-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-locale:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Read the exact source revision
+        shell: bash
+        run: |
+          test "$GITHUB_SERVER_URL" = "https://github.com"
+          test "$GITHUB_REPOSITORY" = "tevinch/helphub"
+          git clone --quiet --no-checkout "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" source
+          git -C source checkout --quiet --detach "$GITHUB_SHA"
+          test "$(git -C source rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Check native locale integration
+        shell: bash
+        env:
+          VERIFY_OUTPUT_DIR: ${{ runner.temp }}/locale-results
+        run: |
+          node --version
+          python3 --version
+          docker --version
+          docker compose version
+          bash source/examples/mailflow-locale-build/verification/verify.sh
+      - name: Show check results
+        if: always()
+        shell: bash
+        env:
+          VERIFY_OUTPUT_DIR: ${{ runner.temp }}/locale-results
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          root = Path(os.environ['VERIFY_OUTPUT_DIR'])
+          for name in ['baseline.json', 'missing-loader.json', 'missing-menu.json', 'green.json', 'resume.json', 'summary.json', 'scope.json']:
+              path = root / name
+              if path.is_file():
+                  print(name)
+                  print(json.dumps(json.loads(path.read_text()), indent=2))
+          path = root / 'native-frontend-tests.log'
+          if path.is_file():
+              print('Native frontend test output:')
+              print(path.read_text()[-12000:])
+          PY

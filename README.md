@@ -25,4 +25,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Named cache backplanes](examples/named-cache-backplanes) | Keep default and named FusionCache instances coherent across replicas using separate native adapters. |
 | [Lambda metric tests](examples/lambda-metric-tests) | Restore metric assertions and configure local tracing before pytest starts. |
 
+| [MailFlow locale build](examples/mailflow-locale-build) | Register a supplied translation in the native language menu and build a personal frontend image. |
+
 The examples are free to use under the MIT license.
