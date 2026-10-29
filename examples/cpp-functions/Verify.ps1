@@ -115,3 +115,5 @@ try {
     Remove-Item -LiteralPath $checkRoot -Recurse -Force
   }
 }
+
+exit 0
