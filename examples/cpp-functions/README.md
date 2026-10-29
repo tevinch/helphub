@@ -1,6 +1,6 @@
 # Call C++ functions from Sere
 
-This small application connects two C++ functions to a Sere module through typed `extern "C"` declarations. It shows the complete source layout, native build setting and executable call for Sere 0.2.2 on Windows x64.
+This example calls two C++ functions from Sere through typed `extern "C"` declarations. It shows the complete source layout, native build setting and executable call for Sere 0.2.2 on Windows x64.
 
 ## Build and run
 
@@ -36,8 +36,7 @@ Adjust the example compiler path to the actual extracted location. Use a termina
 | File | Purpose |
 | --- | --- |
 | `libs/native/numbers.cpp` | Defines `example_add` and `example_twice` with C linkage and `int32_t` arguments/results. |
-| `libs/native_math.sere` | Gives those exact native symbols Sere names, argument lists and `i32` results. The declarations have no body. |
-| `src/main.sere` | Imports the module and calls both functions, including a negative input. |
+| `src/main.sere` | Declares both native symbols with matching `i32` arguments/results, then calls them, including a negative input. The `extern` declarations have no body. |
 | `sere.toml` | Sets the entry file and requests an eager native build with `[build] native = true`. |
 
 For example, this declaration binds the Sere name `add` to the C symbol `example_add`:
@@ -47,7 +46,9 @@ extern "C" "example_add"
 def add(left: i32, right: i32) -> i32
 ```
 
-The C++ definition's name, argument order, widths and return type must match that declaration. `extern "C"` prevents C++ name mangling. The manifest's native setting requests compilation of the loose C++ source under `libs/native/` before the Sere application is compiled. Sere 0.2.2 also discovers and builds a `native/` directory beside an imported module, then links its artifacts. For this layout, importing `libs/native_math.sere` discovers `libs/native/` even with `native = false`; that flag is not an off switch for imported native code.
+The C++ definition's name, argument order, widths and return type must match that declaration. `extern "C"` prevents C++ name mangling. The manifest's `native = true` setting builds the loose C++ source under `libs/native/` before compiling the application and links its archive.
+
+Keep these declarations directly in `src/main.sere` for this Sere 0.2.2 layout. Importing a separate binding module can trigger additional native-artifact discovery and duplicate symbols from an object and its archive. The direct-entry pattern follows the official `native_add.sere` example and uses the project's native build path. After editing `numbers.cpp`, run the same build and executable commands again.
 
 These functions demonstrate a primitive interface with fixed inputs whose arithmetic fits signed 32-bit integers. Strings, objects, ownership, callbacks and C++ exceptions crossing the boundary need a separate interface design. The boxed module registration API is not needed here. For distributing a `.slib`, follow the official library guide; packing and consuming a package are outside this application's check.
 
@@ -59,15 +60,16 @@ In PowerShell 7, from this directory:
 .\Verify.ps1 -CompilerPath $sere
 ```
 
-The check uses the supplied 0.2.2 compiler in five independent temporary projects:
+The check uses the supplied 0.2.2 compiler in four temporary projects. It starts with the complete application and performs all four steps in that **same project**:
 
-1. Remove the C++ source and require an actual missing-symbol build failure.
-2. Remove both C-linkage declarations and require a missing-symbol build failure.
-3. Build the complete application, run its produced executable, and require exactly `42`, `-5`, `42` with exit code zero.
-4. Repeat the complete build and run in another fresh project.
-5. Set `native = false`, then require the same actual program output and exit code, checking import-time native discovery.
+1. Build and run the actual executable; require `42`, `-5`, `42` and exit code zero.
+2. Build and run again without removing its generated artifacts; require the same results.
+3. Change the private C++ copy's multiplication from two to three, rebuild, and require `42`, `-5`, `63`.
+4. Restore the original C++ bytes, rebuild, and require `42`, `-5`, `42` again.
 
-Only the four source inputs are copied, so an earlier build's archives and executables cannot satisfy a check. Your original application stays untouched. The script temporarily clears the documented Sere project/stdlib environment overrides, gives each case its own process temporary directory, restores the previous environment values on exit, and removes only its own temporary files. Its final JSON lists the cases that actually completed; a failed build, wrong output or unexpected successful source/linkage omission stops the check.
+Three fresh projects then disable native compilation, omit the C++ source, or remove both C-linkage declarations. Each must fail at the actual native symbols and produce no application. These controls apply to this direct-entry layout; the imported-module discovery path is different.
+
+Only the three source inputs are copied, so an earlier build's archives and executables cannot satisfy a check. Your original application stays untouched. The script temporarily clears the documented Sere project/stdlib environment overrides, gives each case its own process temporary directory, restores the previous environment values on exit, and removes only its own temporary files. Its final JSON lists the cases that actually completed; a failed build, wrong output or unexpected successful omission stops the check.
 
 This is a Windows x64 / Sere 0.2.2 verification target. Other compiler versions and platforms need their own native integration check.
 

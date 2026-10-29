@@ -1,5 +1,0 @@
-extern "C" "example_add"
-def add(left: i32, right: i32) -> i32
-
-extern "C" "example_twice"
-def twice(value: i32) -> i32
