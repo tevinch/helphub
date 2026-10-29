@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typed functions</title>
+  <style>
+    body { font: 16px system-ui, sans-serif; margin: 2rem auto; padding: 0 1rem; max-width: 48rem; }
+    pre { padding: 1rem; background: #f1f4f8; overflow: auto; }
+    button { padding: .6rem 1rem; }
+  </style>
+  <script src="host.js" defer></script>
+  <script src="build/main.js" defer></script>
+</head>
+<body>
+  <h1>Typed functions</h1>
+  <p>JavaScript calls Dart callbacks with primitive values and a custom object. Dart also calls a JavaScript function with explicit conversions.</p>
+  <button type="button" disabled>Run again</button>
+  <p id="status" role="status">Waiting for the compiled example…</p>
+  <pre id="result" aria-label="Invocation results"></pre>
+</body>
+</html>

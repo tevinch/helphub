@@ -38,5 +38,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [GTK3 titlebar controls](examples/gtk3-titlebar-controls) | Enlarge WhiteSur window controls while keeping their artwork, actions and existing CSS. |
 | [Precipitation intervals](examples/precipitation-intervals) | Label the preceding hour while retaining Meteostat timestamps, amounts and missing values. |
 | [Flat tagged results](examples/tagged-results) | Round-trip flat JSON through a dataclass union field and restore the selected branch. |
+| [Typed Dart functions](examples/typed-functions) | Give JSFunction concrete primitive and custom-object signatures, then call both across the JavaScript boundary. |
 
 The examples are free to use under the MIT license.
