@@ -1,0 +1,3 @@
+datadog-lambda==8.130.0
+ddtrace==4.16.1
+pytest==9.1.1

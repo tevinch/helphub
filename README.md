@@ -23,5 +23,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Country input triggers](examples/country-input-triggers) | Refresh the intended city options from country inputs with the same binding in two htmx versions. |
 | [Postal request reason](examples/postal-request-reason) | Refresh postal hints on country changes and validate on focusout while keeping strict CSP. |
 | [Named cache backplanes](examples/named-cache-backplanes) | Keep default and named FusionCache instances coherent across replicas using separate native adapters. |
+| [Lambda metric tests](examples/lambda-metric-tests) | Restore metric assertions and configure local tracing before pytest starts. |
 
 The examples are free to use under the MIT license.
