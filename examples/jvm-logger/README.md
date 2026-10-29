@@ -57,7 +57,7 @@ The script downloads the two official Maven jars and verifies their pinned SHA-2
 
 These checks use native Rust compilation, actual Java strings, and the real external SLF4J API/provider. They do not test the original application, a Minecraft/mod-loader deployment, or human manual usage. The wrong-constructor and wrong-dispatch Cargo features exist only to reproduce those failures.
 
-Native verification results are pending; this guide should be treated as a review draft until the complete check finishes.
+The [native check passed](https://github.com/tevinch/helphub/actions/runs/40914191760) on Ubuntu 24.04.5 with Temurin 25.0.5+8 and the pinned nightly/backend. Both corrected launches produced the expected Java string length, both SLF4J messages and the completion marker. The original constructor, missing API, missing provider, `-jar` classpath omission and incorrect interface dispatch each produced their expected distinct failure or missing-output result. These are software-operated native checks; adoption in the original application remains unverified.
 
 ## Optional coffee
 

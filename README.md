@@ -33,5 +33,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [YAML in plain HTML](examples/yaml-classic-script) | Load the official browser file with a classic script tag and convert YAML without a bundler. |
 | [Push options](examples/push-options) | Send ci.skip from a Lazygit custom command while retaining ordinary push behavior. |
 | [Availability classes](examples/stock-by-class) | Map class tokens to availability while delivery text and quantities vary. |
+| [Rust JVM logging](examples/jvm-logger) | Convert Rust strings and launch a standalone JVM program with an external SLF4J provider. |
 
 The examples are free to use under the MIT license.
