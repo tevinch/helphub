@@ -67,10 +67,13 @@ def controls_for(pid):
         for node in descendants(app):
             name = (node.name or "").lower()
             if node.getRole() == pyatspi.ROLE_PUSH_BUTTON:
+                state = node.getState()
+                if not (state.contains(pyatspi.STATE_VISIBLE) and state.contains(pyatspi.STATE_SHOWING)):
+                    continue
                 for key in ("close", "minimize", "maximize", "restore"):
                     if name == key:
                         rect = node.queryComponent().getExtents(pyatspi.DESKTOP_COORDS)
-                        if rect.width > 0 and rect.height > 0:
+                        if rect.x >= 0 and rect.y >= 0 and rect.width > 0 and rect.height > 0:
                             found["maximize" if key == "restore" else key] = [rect.x, rect.y, rect.width, rect.height]
     return found if len(found) == 3 else None
 
