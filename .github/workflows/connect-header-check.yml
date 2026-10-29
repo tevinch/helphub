@@ -25,7 +25,23 @@ jobs:
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
           [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]
           work=$(mktemp -d "$RUNNER_TEMP/connect-header.XXXXXXXX")
-          trap 'rm -rf -- "$work"' EXIT
+          cleanup() {
+            local original_status=$?
+            local cleanup_status=0
+            trap - EXIT
+            if [[ -d "$work/modules" ]]; then
+              chmod -R u+w "$work/modules" || cleanup_status=$?
+            fi
+            rm -rf -- "$work" || cleanup_status=$?
+            if (( cleanup_status != 0 )); then
+              printf 'Temporary directory cleanup failed with exit %s.\n' "$cleanup_status" >&2
+            fi
+            if (( original_status != 0 )); then
+              exit "$original_status"
+            fi
+            exit "$cleanup_status"
+          }
+          trap cleanup EXIT
           source_dir="$work/source"
           anon_git() {
             env -i "PATH=$PATH" "HOME=$HOME" \
