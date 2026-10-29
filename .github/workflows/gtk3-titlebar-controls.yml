@@ -36,7 +36,7 @@ jobs:
           PY
           mkdir -p "$RUNNER_TEMP/whitesur-source"
           tar -xzf "$RUNNER_TEMP/whitesur.tar.gz" --strip-components=1 -C "$RUNNER_TEMP/whitesur-source"
-          bash "$RUNNER_TEMP/whitesur-source/install.sh" -d "$RUNNER_TEMP/titlebar-desktop/data/themes" -c dark -o normal -t orange
+          BASH_XTRACEFD=3 bash -x "$RUNNER_TEMP/whitesur-source/install.sh" -d "$RUNNER_TEMP/titlebar-desktop/data/themes" -c dark -o normal -t orange 3>&1
       - name: Verify real GTK3 Gedit and xfwm4
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/titlebar-desktop/config
