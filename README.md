@@ -34,5 +34,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Push options](examples/push-options) | Send ci.skip from a Lazygit custom command while retaining ordinary push behavior. |
 | [Availability classes](examples/stock-by-class) | Map class tokens to availability while delivery text and quantities vary. |
 | [Rust JVM logging](examples/jvm-logger) | Convert Rust strings and launch a standalone JVM program with an external SLF4J provider. |
+| [Exact palette PNG](examples/exact-palette-png) | Export a bounded 4-bit texture with an exact palette, unchanged pixels and a file-size limit. |
 
 The examples are free to use under the MIT license.
