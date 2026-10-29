@@ -1,0 +1,76 @@
+name: GTK3 titlebar controls
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'examples/gtk3-titlebar-controls/**'
+      - '.github/workflows/gtk3-titlebar-controls.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install the native desktop dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends python3-gi gir1.2-gtk-3.0 python3-pyatspi python3-pil python3-pil.imagetk at-spi2-core xfwm4 xfconf xdotool x11-utils x11-xserver-utils xvfb xauth dbus-x11 gedit sassc libglib2.0-dev-bin libxml2-utils
+          command -v sassc glib-compile-resources xmllint
+          python3 -c 'import subprocess; assert "libgtk-3.so" in subprocess.check_output(["ldd", "/usr/bin/gedit"], text=True), "This check requires GTK3 Gedit"'
+      - name: Install the pinned theme on this disposable runner
+        env:
+          THEME_COMMIT: 99247ecd219bdc1c7409baff062b4aafcf1102a7
+        run: |
+          mkdir -p "$RUNNER_TEMP/titlebar-desktop/data/themes"
+          curl --fail --location --retry 2 "https://codeload.github.com/vinceliuice/WhiteSur-gtk-theme/tar.gz/$THEME_COMMIT" --output "$RUNNER_TEMP/whitesur.tar.gz"
+          python3 - "$RUNNER_TEMP/whitesur.tar.gz" <<'PY'
+          import hashlib, pathlib, sys
+          assert hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest() == "5c450592ff55bcae98b19d6408d1462288d81e8787b5ef3a96b445a1a35429d2"
+          PY
+          mkdir -p "$RUNNER_TEMP/whitesur-source"
+          tar -xzf "$RUNNER_TEMP/whitesur.tar.gz" --strip-components=1 -C "$RUNNER_TEMP/whitesur-source"
+          bash "$RUNNER_TEMP/whitesur-source/install.sh" -d "$RUNNER_TEMP/titlebar-desktop/data/themes" -c dark -o normal -t orange
+      - name: Verify real GTK3 Gedit and xfwm4
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/titlebar-desktop/config
+          XDG_DATA_HOME: ${{ runner.temp }}/titlebar-desktop/data
+          XDG_CACHE_HOME: ${{ runner.temp }}/titlebar-desktop/cache
+          XDG_RUNTIME_DIR: ${{ runner.temp }}/titlebar-desktop/runtime
+          GSETTINGS_BACKEND: memory
+          NO_AT_BRIDGE: '0'
+          GDK_BACKEND: x11
+        run: |
+          mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_RUNTIME_DIR"
+          chmod 700 "$XDG_RUNTIME_DIR"
+          cat > "$RUNNER_TEMP/run-titlebar-desktop.sh" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          xfwm4 --compositor=off > "$RUNNER_TEMP/xfwm4.log" 2>&1 &
+          window_manager_pid=$!
+          trap 'kill "$window_manager_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..80}; do
+            if xprop -root _NET_SUPPORTING_WM_CHECK | grep -q 'window id'; then break; fi
+            sleep .1
+          done
+          xprop -root _NET_SUPPORTING_WM_CHECK
+          printf 'Xft.dpi: 138\n' | xrdb -merge
+          /usr/bin/python3 examples/gtk3-titlebar-controls/check.py --data "$XDG_DATA_HOME" --output "$RUNNER_TEMP/titlebar-results"
+          SH
+          dbus-run-session -- xvfb-run -a -s "-screen 0 1600x1000x24 -dpi 138" bash "$RUNNER_TEMP/run-titlebar-desktop.sh"
+      - name: Retain native measurements and screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gtk3-titlebar-results
+          path: |
+            ${{ runner.temp }}/titlebar-results
+            ${{ runner.temp }}/xfwm4.log
+          if-no-files-found: warn
+          retention-days: 14
