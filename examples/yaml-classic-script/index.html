@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YAML in a plain HTML page</title>
+<style>
+  body { max-width: 48rem; margin: 2rem auto; padding: 0 1rem; font: 1rem/1.5 system-ui, sans-serif; }
+  textarea { box-sizing: border-box; width: 100%; min-height: 10rem; font: 1rem/1.5 monospace; }
+  pre { min-height: 3rem; padding: 1rem; background: #f0f2f4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  button { margin: 1rem 0; padding: .5rem 1rem; font: inherit; }
+  #status[data-state="error"] { color: #a30000; }
+</style>
+<h1>YAML in a plain HTML page</h1>
+<p>This example uses the official js-yaml 5.5.0 browser build with ordinary, ordered script tags.</p>
+<form id="convert">
+  <label for="source">YAML source</label>
+  <textarea id="source" spellcheck="false">greeting: Hello
+count: 3
+enabled: true
+items:
+  - alpha
+  - βeta
+</textarea>
+  <button id="submit" disabled>Load and dump YAML</button>
+</form>
+<p id="status" role="status" aria-live="polite">Loading js-yaml…</p>
+<h2>Loaded JavaScript value (shown as JSON)</h2>
+<pre id="value"></pre>
+<h2>YAML produced by dump()</h2>
+<pre id="yaml"></pre>
+
+<!-- No async, defer, or type="module": the next script runs after this one. -->
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@5.5.0/dist/browser/js-yaml.umd.min.js"></script>
+<script>
+  (function () {
+    var form = document.getElementById('convert');
+    var button = document.getElementById('submit');
+    var status = document.getElementById('status');
+    var valueOutput = document.getElementById('value');
+    var yamlOutput = document.getElementById('yaml');
+
+    if (!window.jsyaml || typeof window.jsyaml.load !== 'function' || typeof window.jsyaml.dump !== 'function') {
+      status.dataset.state = 'error';
+      status.textContent = 'js-yaml did not load. Check the script URL or use a local copy as described in the README.';
+      return;
+    }
+
+    function convert() {
+      valueOutput.textContent = '';
+      yamlOutput.textContent = '';
+      try {
+        var value = window.jsyaml.load(document.getElementById('source').value);
+        valueOutput.textContent = value === undefined ? '(empty YAML document)' : JSON.stringify(value, null, 2);
+        yamlOutput.textContent = window.jsyaml.dump(value);
+        status.dataset.state = 'success';
+        status.textContent = 'Loaded and dumped successfully.';
+      } catch (error) {
+        valueOutput.textContent = '';
+        yamlOutput.textContent = '';
+        status.dataset.state = 'error';
+        status.textContent = error instanceof Error ? error.message : String(error);
+      }
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      convert();
+    });
+    button.disabled = false;
+    convert();
+  }());
+</script>
+</html>
