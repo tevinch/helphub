@@ -44,14 +44,11 @@ fn main() {
     unsafe {
         let name = java_string("local.example");
         let message = java_string(owned_message.as_str());
-        assert!(!name.is_null() && !message.is_null());
         assert_eq!((&*message).length(), 10); // Java counts UTF-16 code units.
         println!("JAVA_STRING_LENGTH={}", (&*message).length());
         let logger = LoggerFactory::get_logger(&*name);
-        assert!(!logger.is_null());
         (&*logger).info(&*message);
         let second = java_string("second message");
-        assert!(!second.is_null());
         (&*logger).info(&*second);
     }
     println!("LOGGING_DONE");

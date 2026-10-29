@@ -21,6 +21,8 @@ impl RustText {
 
 `RustText::to_java("local.example")` returns a Java `String` reference suitable for `LoggerFactory.getLogger(String)`. Keep `Logger` declared with `#[jvm::interface("org.slf4j.Logger")]`; its `info` method needs interface dispatch. The complete [Rust program](src/main.rs) converts an owned Rust string containing `β` and `🌍`, checks Java's UTF-16 length, gets the real logger, and logs two messages.
 
+The macro's `*mut JavaString` and `*mut Logger` values carry JVM object references. At this pinned revision, calling Rust's `.is_null()` on these handles fails with a `ClassCastException` in the runtime pointer helper. Use the bound Java methods as shown in the program. The Java length assertion and actual logger calls remain required checks of conversion and invocation.
+
 ## Build and launch with external jars
 
 Build the pinned backend using its [source setup instructions](https://github.com/IntegralPilot/rustc_codegen_jvm/blob/67e89c1b1e6ace5837da7d0a818ecde0c0660638/cargo-jvm/README.md#from-a-source-checkout). Check out the revision above before installing/setup. Its `rust-toolchain.toml` selects the required dated nightly and components.
