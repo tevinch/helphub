@@ -39,6 +39,14 @@ Open **Settings → Appearance → Language & Font → Danish**. Check a transla
 
 To offer the translation for future official releases, follow MailFlow's [contribution guide](https://github.com/maathimself/mailflow/blob/main/CONTRIBUTING.md). Building your own image does not submit the translation upstream.
 
+## What happens when MailFlow updates?
+
+While Danish is only in your local source, each frontend update needs a new image built with your translation and its two registrations. Replacing the frontend container with an official image gives you the languages included in that release; it does not carry your local edits forward.
+
+Keep a separate copy of `da.json` and the three-file diff. When moving to a new release, read its upgrade notes, compare its new `en.json` with your translation, and update any added keys or changed placeholders. Reapply the registrations against that release before building. The helper above is checked against v4.1.0 and stops if the source layout differs; that stop needs review, rather than forcing the old edits into a new layout. Follow the release's normal backend/data upgrade steps too—the frontend-only commands above are for applying the locale to an otherwise matching installation.
+
+Once a release includes your translation and registrations upstream, you can use that release's official image without maintaining this local language change. Submitting the translation and having it included in a release are separate steps.
+
 ## Reproduce the checks
 
 ```sh
