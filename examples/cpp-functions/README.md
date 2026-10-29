@@ -38,7 +38,7 @@ Adjust the example compiler path to the actual extracted location. Use a termina
 | `libs/native/numbers.cpp` | Defines `example_add` and `example_twice` with C linkage and `int32_t` arguments/results. |
 | `libs/native_math.sere` | Gives those exact native symbols Sere names, argument lists and `i32` results. The declarations have no body. |
 | `src/main.sere` | Imports the module and calls both functions, including a negative input. |
-| `sere.toml` | Sets the entry file and enables native compilation with `[build] native = true`. |
+| `sere.toml` | Sets the entry file and requests an eager native build with `[build] native = true`. |
 
 For example, this declaration binds the Sere name `add` to the C symbol `example_add`:
 
@@ -47,7 +47,7 @@ extern "C" "example_add"
 def add(left: i32, right: i32) -> i32
 ```
 
-The C++ definition's name, argument order, widths and return type must match that declaration. `extern "C"` prevents C++ name mangling. The manifest's native setting makes `sere build` compile the loose C++ source under `libs/native/` and link it into the application.
+The C++ definition's name, argument order, widths and return type must match that declaration. `extern "C"` prevents C++ name mangling. The manifest's native setting requests compilation of the loose C++ source under `libs/native/` before the Sere application is compiled. Sere 0.2.2 also discovers and builds a `native/` directory beside an imported module, then links its artifacts. For this layout, importing `libs/native_math.sere` discovers `libs/native/` even with `native = false`; that flag is not an off switch for imported native code.
 
 These functions demonstrate a primitive interface with fixed inputs whose arithmetic fits signed 32-bit integers. Strings, objects, ownership, callbacks and C++ exceptions crossing the boundary need a separate interface design. The boxed module registration API is not needed here. For distributing a `.slib`, follow the official library guide; packing and consuming a package are outside this application's check.
 
@@ -59,14 +59,15 @@ In PowerShell 7, from this directory:
 .\Verify.ps1 -CompilerPath $sere
 ```
 
-The check uses the supplied 0.2.2 compiler in four independent temporary projects:
+The check uses the supplied 0.2.2 compiler in five independent temporary projects:
 
-1. Disable native compilation and require an actual missing-symbol build failure.
+1. Remove the C++ source and require an actual missing-symbol build failure.
 2. Remove both C-linkage declarations and require a missing-symbol build failure.
 3. Build the complete application, run its produced executable, and require exactly `42`, `-5`, `42` with exit code zero.
 4. Repeat the complete build and run in another fresh project.
+5. Set `native = false`, then require the same actual program output and exit code, checking import-time native discovery.
 
-Only the four source inputs are copied, so an earlier build's archives and executables cannot satisfy a check. Your original application stays untouched. The script temporarily clears the documented Sere project/stdlib environment overrides, restores their previous process values on exit, and removes only its own temporary directory. Its final JSON lists the cases that actually completed; a failed build, wrong output or unexpected successful omission stops the check.
+Only the four source inputs are copied, so an earlier build's archives and executables cannot satisfy a check. Your original application stays untouched. The script temporarily clears the documented Sere project/stdlib environment overrides, gives each case its own process temporary directory, restores the previous environment values on exit, and removes only its own temporary files. Its final JSON lists the cases that actually completed; a failed build, wrong output or unexpected successful source/linkage omission stops the check.
 
 This is a Windows x64 / Sere 0.2.2 verification target. Other compiler versions and platforms need their own native integration check.
 

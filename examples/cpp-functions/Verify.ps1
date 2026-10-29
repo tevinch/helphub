@@ -22,13 +22,16 @@ function Copy-Case([string]$Name) {
   return $path
 }
 
-function Check-Case([string]$Name, [string]$ExpectedFailure) {
+function Check-Case([string]$Name, [string]$ExpectedFailure, [bool]$DisableNative = $false) {
   $path = Copy-Case $Name
-  if ($ExpectedFailure -eq 'native-disabled') {
+  if ($DisableNative) {
     $manifest = Join-Path $path 'sere.toml'
     $text = [IO.File]::ReadAllText($manifest)
     if ([regex]::Matches($text, [regex]::Escape('native = true')).Count -ne 1) { throw 'Native flag fixture differs' }
     [IO.File]::WriteAllText($manifest, $text.Replace('native = true', 'native = false'))
+  }
+  if ($ExpectedFailure -eq 'cpp-source-omitted') {
+    Remove-Item -LiteralPath (Join-Path $path 'libs/native/numbers.cpp')
   }
   if ($ExpectedFailure -eq 'c-linkage-omitted') {
     $native = Join-Path $path 'libs/native/numbers.cpp'
@@ -36,6 +39,10 @@ function Check-Case([string]$Name, [string]$ExpectedFailure) {
     if ([regex]::Matches($text, [regex]::Escape('extern "C" ')).Count -ne 2) { throw 'C linkage fixture differs' }
     [IO.File]::WriteAllText($native, $text.Replace('extern "C" ', ''))
   }
+  $caseTemp = Join-Path $path 'temp'
+  New-Item -ItemType Directory -Path $caseTemp | Out-Null
+  [Environment]::SetEnvironmentVariable('TEMP', $caseTemp, 'Process')
+  [Environment]::SetEnvironmentVariable('TMP', $caseTemp, 'Process')
   Push-Location $path
   try {
     $buildOutput = (& $compiler build 2>&1 | Out-String)
@@ -61,20 +68,22 @@ function Check-Case([string]$Name, [string]$ExpectedFailure) {
   }
 }
 
-$environmentNames = @('SERE_ACTIVE', 'SERE_PROJECT_ROOT', 'SERE_STDLIB')
+$projectEnvironmentNames = @('SERE_ACTIVE', 'SERE_PROJECT_ROOT', 'SERE_STDLIB')
+$environmentNames = $projectEnvironmentNames + @('TEMP', 'TMP')
 $originalEnvironment = @{}
 foreach ($name in $environmentNames) {
   $originalEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
 }
 try {
-  foreach ($name in $environmentNames) {
+  foreach ($name in $projectEnvironmentNames) {
     [Environment]::SetEnvironmentVariable($name, $null, 'Process')
   }
-  Check-Case 'without-native-build' 'native-disabled'
+  Check-Case 'without-cpp-source' 'cpp-source-omitted'
   Check-Case 'without-c-linkage' 'c-linkage-omitted'
   Check-Case 'complete' ''
   Check-Case 'complete-again' ''
-  if ($results.Count -ne 4) { throw 'Not all native workflows executed' }
+  Check-Case 'native-false' '' $true
+  if ($results.Count -ne 5) { throw 'Not all native workflows executed' }
   @{compiler = $version; platform = 'Windows x64'; results = $results} | ConvertTo-Json -Depth 5
 } finally {
   try {
