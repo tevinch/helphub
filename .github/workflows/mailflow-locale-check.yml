@@ -53,5 +53,9 @@ jobs:
           path = root / 'native-frontend-tests.log'
           if path.is_file():
               print('Native frontend test output:')
-              print(path.read_text()[-12000:])
+              lines = path.read_text().splitlines()
+              failures = [i for i, line in enumerate(lines) if any(token in line for token in ['not ok ', 'AssertionError', 'ERR_ASSERTION', 'error:', 'failureType:'])]
+              for i in failures:
+                  print('\n'.join(lines[max(0, i - 3):i + 35]))
+              print('\n'.join(lines[-80:]))
           PY
