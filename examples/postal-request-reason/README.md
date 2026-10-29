@@ -2,6 +2,8 @@
 
 One postal input can keep both triggers: refresh when the country changes, and validate when the user leaves the postal field. Add a small reason header in an external script using htmx's request configuration event.
 
+This recipe requires the page to load the external listener script. It does not satisfy an attributes-only library that cannot require additional page JavaScript. The original requester confirmed the hook works under strict CSP, while clarifying that a built-in header is still needed for that library. See the [follow-up](https://github.com/bigskysoftware/htmx/issues/4161#issuecomment-6480569924).
+
 The event APIs differ between the two pinned packages:
 
 | Package | Configuration event | Original DOM event | Headers |
