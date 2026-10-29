@@ -31,4 +31,6 @@ Small, runnable examples for practical development questions. Each example expla
 
 | [Runtime CSV headers](examples/runtime-csv-headers) | Select export headers at runtime while retaining CsvHelper generated record serialization. |
 
+| [Marker channel names](examples/marker-channel-names) | Check Backsub row indexing, repeated reference labels and explicit per-cycle background names on synthetic data. |
+
 The examples are free to use under the MIT license.
