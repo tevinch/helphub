@@ -130,7 +130,9 @@ compose up -d --no-deps --wait --wait-timeout 180 frontend
 node "$check_dir/browser.mjs" resume
 # Use the native builder's installed dependencies for the frontend's full test command.
 docker build --target builder --tag "$builder_image" --file "$source_dir/frontend/Dockerfile" "$source_dir"
-docker run --rm --network none "$builder_image" npm test > "$VERIFY_OUTPUT_DIR/native-frontend-tests.log" 2>&1
+docker run --rm --network none \
+  --mount "type=bind,source=$source_dir/contrib,target=/contrib,readonly" \
+  "$builder_image" npm test > "$VERIFY_OUTPUT_DIR/native-frontend-tests.log" 2>&1
 python3 - "$VERIFY_OUTPUT_DIR" "$commit" <<'PY'
 from pathlib import Path
 import hashlib
