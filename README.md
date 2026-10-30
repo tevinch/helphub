@@ -45,4 +45,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Bun catalog updates](examples/catalog-workspaces) | Preview and apply catalog updates across Bun workspaces with the native ncu commands. |
 | [Dodged text](examples/dodged-text) | Align supplied labels with grouped Seaborn points while retaining the existing plot layers. |
 
+| [JBang coverage](examples/jbang-coverage) | Run JUnit tests and generate matching HTML and XML coverage reports without a Maven or Gradle build. |
+
 The examples are free to use under the MIT license.
