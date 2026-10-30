@@ -1,0 +1,12 @@
+{
+  "name": "@catalog-workspaces/ui-shares",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "bun check.mjs"
+  },
+  "dependencies": {
+    "svelte": "catalog:"
+  }
+}

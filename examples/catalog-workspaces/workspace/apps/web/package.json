@@ -1,0 +1,12 @@
+{
+  "name": "@catalog-workspaces/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "bun check.mjs"
+  },
+  "dependencies": {
+    "typescript": "catalog:"
+  }
+}
