@@ -42,4 +42,7 @@ Small, runnable examples for practical development questions. Each example expla
 | [Frozen UTC reads](examples/frozen-utc) | Keep repeated clock reads exact when migrating freezegun tests to time-machine. |
 | [Named-zone JSON](examples/zoned-json) | Preserve a ZonedDateTime region, instant and nanoseconds through Jackson 3 JSON round trips. |
 
+| [Bun catalog updates](examples/catalog-workspaces) | Preview and apply catalog updates across Bun workspaces with the native ncu commands. |
+| [Dodged text](examples/dodged-text) | Align supplied labels with grouped Seaborn points while retaining the existing plot layers. |
+
 The examples are free to use under the MIT license.
