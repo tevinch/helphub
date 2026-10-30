@@ -45,5 +45,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [JBang coverage](examples/jbang-coverage) | Run JUnit tests and generate matching HTML and XML coverage reports without a Maven or Gradle build. |
 | [CSV inventory and boxes](examples/csv-boxes) | Import inventory with new room paths, convert nested boxes and recognize repeated rows in Kept. |
 | [CLI11 stdin configuration](examples/stdin-config) | Read configuration from stdin or a file while preserving CLI11 precedence and validation. |
+| [MCP HTTP requests](examples/mcp-http-requests) | List and call Quarkus MCP tools with complete stateless and stateful curl requests. |
 
 The examples are free to use under the MIT license.
