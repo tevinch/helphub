@@ -1,7 +1,6 @@
 # HelpHub
 
 Small, runnable examples for practical development questions. Each example explains its scope, how to run it, and what was checked.
-
 | Example | Use it to |
 | --- | --- |
 | [Calculator input](examples/calculator-input) | Retry invalid console input while keeping fractional arithmetic. |
@@ -41,12 +40,10 @@ Small, runnable examples for practical development questions. Each example expla
 | [Typed Dart functions](examples/typed-functions) | Give JSFunction concrete primitive and custom-object signatures, then call both across the JavaScript boundary. |
 | [Frozen UTC reads](examples/frozen-utc) | Keep repeated clock reads exact when migrating freezegun tests to time-machine. |
 | [Named-zone JSON](examples/zoned-json) | Preserve a ZonedDateTime region, instant and nanoseconds through Jackson 3 JSON round trips. |
-
 | [Bun catalog updates](examples/catalog-workspaces) | Preview and apply catalog updates across Bun workspaces with the native ncu commands. |
 | [Dodged text](examples/dodged-text) | Align supplied labels with grouped Seaborn points while retaining the existing plot layers. |
-
 | [JBang coverage](examples/jbang-coverage) | Run JUnit tests and generate matching HTML and XML coverage reports without a Maven or Gradle build. |
-
 | [CSV inventory and boxes](examples/csv-boxes) | Import inventory with new room paths, convert nested boxes and recognize repeated rows in Kept. |
+| [CLI11 stdin configuration](examples/stdin-config) | Read configuration from stdin or a file while preserving CLI11 precedence and validation. |
 
 The examples are free to use under the MIT license.
