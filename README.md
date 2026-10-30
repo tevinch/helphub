@@ -47,4 +47,6 @@ Small, runnable examples for practical development questions. Each example expla
 
 | [JBang coverage](examples/jbang-coverage) | Run JUnit tests and generate matching HTML and XML coverage reports without a Maven or Gradle build. |
 
+| [CSV inventory and boxes](examples/csv-boxes) | Import inventory with new room paths, convert nested boxes and recognize repeated rows in Kept. |
+
 The examples are free to use under the MIT license.

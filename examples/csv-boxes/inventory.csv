@@ -1,0 +1,8 @@
+source_id,name,quantity,place_path,tags,notes
+sample-001,M4 screws,120,Workshop > Fasteners,sample;hardware,"Steel screws, zinc finish"
+sample-002,Washers,40,Workshop > Fasteners,sample;hardware,Ø4 washers
+sample-003,Driver bits,8,Workshop > Carry case > Inner tray,sample;tools,Small pieces
+sample-004,Compact driver,1,Workshop > Carry case,sample;tools,Keep upright
+sample-005,Notebook,1,Workshop,sample;paper,Loose item in the room
+sample-006,Sketch pad,2,Office > Paper box,sample;paper,"First line
+Second line"
