@@ -1,15 +1,15 @@
 {
   import: "recipe/common.php"
   config: {
-    current_path: "public_html"
-    artifact_path: "artifacts/payload.tar.gz"
+    current_path: "{{deploy_path}}/public_html"
+    artifact_path: "{{checkout_root}}/artifacts/payload.tar.gz"
     user: "Tevinch"
     target: "HEAD"
   }
   hosts: {
     testdeploy: {
       local: true
-      deploy_path: "testdeploy"
+      deploy_path: "{{checkout_root}}/testdeploy"
     }
   }
   tasks: {

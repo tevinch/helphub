@@ -1,4 +1,4 @@
-"""Native relative-path baseline; successful publication is the required contract."""
+"""Native checks for checkout-derived local deployment paths."""
 
 from __future__ import annotations
 
@@ -76,32 +76,12 @@ def command(php: str, phar: Path, root: Path, task: str, entry: str) -> list[str
             task, "testdeploy", "--no-ansi", "--no-interaction", "-vvv"]
 
 
-def relative_link_failure(output: str, checkout: Path) -> bool:
-    release_link = checkout / ".paas/testdeploy/release"
-    link_diagnostic = any(
-        "ln:" in line and "testdeploy/release" in line
-        and "No such file or directory" in line
-        for line in output.splitlines()
-    )
-    return (
-        "deploy:release" in output and link_diagnostic
-        and (checkout / ".paas/testdeploy/releases/1").is_dir()
-        and not release_link.exists() and not release_link.is_symlink()
-    )
+def config_hashes(root: Path) -> dict[str, str]:
+    return {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+            for name in (".paas/deploy.php", ".paas/deploy.maml")}
 
 
-def relative_cwd_failure(output: str, checkout: Path) -> bool:
-    root_deployment = checkout / "testdeploy"
-    return (
-        'The provided cwd "testdeploy" does not exist.' in output
-        and "recipe/deploy/release.php(87)" in output
-        and "task deploy:release" in output
-        and (checkout / ".paas/testdeploy").is_dir()
-        and not root_deployment.exists() and not root_deployment.is_symlink()
-    )
-
-
-def inspect_magento_paths(output: str) -> None:
+def inspect_paths(output: str, root: Path, require_magento: bool) -> None:
     results = []
     decoder = json.JSONDecoder()
     for line in output.splitlines():
@@ -112,12 +92,54 @@ def inspect_magento_paths(output: str) -> None:
     require(len(results) == 1, "native path task must emit exactly one result")
     result = results[0]
     require(set(result) == {"task", "deploy_path", "current_path", "recipes"}
-            and result["task"] == "paths:show" and result["deploy_path"] == "testdeploy"
-            and result["current_path"] == "public_html",
-            "baseline native task did not evaluate the original relative settings")
+            and result["task"] == "paths:show"
+            and result["deploy_path"] == str(root / "testdeploy")
+            and result["current_path"] == str(root / "testdeploy/public_html"),
+            "native paths are not anchored to this checkout")
     require(isinstance(result["recipes"], list) and "common" in result["recipes"],
             "native common recipe marker missing")
-    require("magento2" in result["recipes"], "native Magento recipe marker missing")
+    if require_magento:
+        require("magento2" in result["recipes"], "native Magento recipe marker missing")
+    else:
+        require("magento2" not in result["recipes"], "filesystem fixture imported Magento")
+
+
+def path_task(php: str, phar: Path, root: Path, cwd: Path, work: Path,
+              label: str, magento: bool) -> None:
+    code, output = run(command(php, phar, root, "paths:show", "deploy.php"), cwd, work, label)
+    require(code == 0, "native path-inspection task failed")
+    inspect_paths(output, root, magento)
+
+
+def no_deployment(root: Path) -> None:
+    require(not (root / "testdeploy").exists()
+            and not (root / ".paas/testdeploy").exists(),
+            "configuration inspection created a deployment")
+
+
+def artifact(root: Path, content: bytes) -> None:
+    destination = root / "artifacts/payload.tar.gz"
+    destination.parent.mkdir(exist_ok=True)
+    member = tarfile.TarInfo("payload.txt")
+    member.size, member.mode, member.mtime = len(content), 0o644, 0
+    with tarfile.open(destination, "w:gz") as archive:
+        archive.addfile(member, io.BytesIO(content))
+
+
+def current(root: Path, release: str, content: bytes) -> None:
+    deployment = root / "testdeploy"
+    link = deployment / "public_html"
+    require(link.is_symlink(), "current_path is not a native published symlink")
+    require(link.resolve(strict=True) == deployment / "releases" / release,
+            "current_path does not resolve to the expected release")
+    require((link / "payload.txt").read_bytes() == content, "published payload differs")
+    require((deployment / ".dep/latest_release").read_text().strip() == release,
+            "native release counter differs")
+    require(not (deployment / "release").exists() and not (deployment / "release").is_symlink(),
+            "unfinished native release link remains")
+    require(not (deployment / "testdeploy").exists()
+            and not (root / ".paas/testdeploy").exists(),
+            "relative-path deployment directory appeared")
 
 
 def main() -> None:
@@ -132,7 +154,7 @@ def main() -> None:
         work = Path(name).resolve()
         require(work.parent == runner_temp and work.name.startswith("portable-path-"),
                 "unsafe task temporary directory")
-        for folder in ("home", "tmp"):
+        for folder in ("home", "tmp", "unrelated", "relocated"):
             (work / folder).mkdir()
         code, output = run([php, "-r", (
             "echo json_encode(['php'=>PHP_VERSION,"
@@ -143,86 +165,116 @@ def main() -> None:
         require(settings["tracking"] == "true" and settings["banner"] == "true",
                 "supported telemetry/banner switches were not applied")
 
-        # Actual Magento import, but only a safe native configuration task runs.
-        magento = work / "magento-paths"
+        # Actual Magento recipe, but only configuration inspection: no application task.
+        magento = work / "magento-a"
         shutil.copytree(SOURCE / "magento-paths", magento)
-        code, output = run(command(php, phar, magento, "paths:show", "deploy.php"),
-                           magento, work, "magento-paths")
-        require(code == 0, "SETUP_BLOCKED: native Magento path task failed")
-        inspect_magento_paths(output)
-        require(not (magento / "testdeploy").exists()
-                and not (magento / ".paas/testdeploy").exists(),
-                "path inspection ran a deployment lifecycle")
+        magento_hashes = config_hashes(magento)
+        path_task(php, phar, magento, magento, work, "magento-root-paths", True)
+        no_deployment(magento)
+        moved_magento = work / "relocated/magento-b"
+        magento.rename(moved_magento)
+        require(not magento.exists(), "Magento-mode checkout was copied rather than moved")
+        require(config_hashes(moved_magento) == magento_hashes,
+                "Magento-mode checked-in configuration changed on relocation")
+        path_task(php, phar, moved_magento, work / "unrelated", work, "magento-moved-paths", True)
+        no_deployment(moved_magento)
 
-        omitted = work / "omitted-magento-import"
-        shutil.copytree(SOURCE / "magento-paths", omitted)
-        maml = omitted / ".paas/deploy.maml"
+        omitted_recipe = work / "omitted-magento-import"
+        shutil.copytree(SOURCE / "magento-paths", omitted_recipe)
+        maml = omitted_recipe / ".paas/deploy.maml"
         original = maml.read_text()
         recipe = 'import: "recipe/magento2.php"'
         require(original.count(recipe) == 1, "omitted-recipe control is ambiguous")
         maml.write_text(original.replace(recipe, 'import: "recipe/common.php"'))
-        code, output = run(command(php, phar, omitted, "paths:show", "deploy.php"),
-                           omitted, work, "omitted-magento-import")
-        require(code == 0, "SETUP_BLOCKED: omitted-recipe path task did not run")
+        code, output = run(command(php, phar, omitted_recipe, "paths:show", "deploy.php"),
+                           work / "unrelated", work, "omitted-magento-import")
+        require(code == 0, "omitted-recipe path task did not run")
         try:
-            inspect_magento_paths(output)
+            inspect_paths(output, omitted_recipe, True)
         except AssertionError as error:
             require(str(error) == "native Magento recipe marker missing",
                     "omitted-recipe control failed for a different reason")
         else:
             raise AssertionError("omitting the Magento recipe was not rejected")
-        require(not (omitted / "testdeploy").exists()
-                and not (omitted / ".paas/testdeploy").exists(),
-                "omitted-recipe inspection ran a deployment lifecycle")
+        no_deployment(omitted_recipe)
         print("EXPECTED_OMITTED_MAGENTO_IMPORT_REJECTION", flush=True)
 
-        # Fresh identical configurations isolate the invocation cwd as a diagnostic.
-        # Changing cwd is not the proposed consumer configuration fix.
-        config_bytes = (SOURCE / "fixture/.paas/deploy.maml").read_bytes()
-        content = b"release-one\n"
-        for invocation in ("root", "config-dir"):
-            checkout = work / f"checkout-{invocation}"
-            shutil.copytree(SOURCE / "fixture", checkout)
-            require((checkout / ".paas/deploy.maml").read_bytes() == config_bytes,
-                    "diagnostic configuration bytes changed")
-            artifact_dir = checkout / ".paas/artifacts"
-            artifact_dir.mkdir()
-            member = tarfile.TarInfo("payload.txt")
-            member.size, member.mode, member.mtime = len(content), 0o644, 0
-            with tarfile.open(artifact_dir / "payload.tar.gz", "w:gz") as archive:
-                archive.addfile(member, io.BytesIO(content))
-            cwd = checkout if invocation == "root" else checkout / ".paas"
-            code, output = run(command(php, phar, checkout, "paths:publish", "deploy.maml"),
-                               cwd, work, f"native-relative-{invocation}")
-            if invocation == "root":
-                cwd_variant = code != 0 and relative_cwd_failure(output, checkout)
-                print(json.dumps({
-                    "phase": "native-relative-root",
-                    "classification": "NATIVE_RELATIVE_CWD_FAILURE" if cwd_variant
-                                      else "SETUP_OR_UNEXPECTED_FAILURE",
-                    "native_exit_code": code,
-                    "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
-                }), flush=True)
-                require(cwd_variant, "root invocation did not reproduce the observed native cwd failure")
-                continue
-            if code != 0:
-                behavior_red = relative_link_failure(output, checkout)
-                print(json.dumps({
-                    "phase": "native-relative-config-dir",
-                    "classification": "BEHAVIOR_RED_NATIVE_RELATIVE_LINK" if behavior_red
-                                      else "SETUP_OR_UNEXPECTED_FAILURE",
-                    "native_exit_code": code,
-                    "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
-                }), flush=True)
-                require(behavior_red, "config-dir invocation did not reach the native relative-link failure")
-        require(code == 0, "portable-path contract: native artifact publication must complete")
-        current = checkout / "testdeploy/public_html"
-        require(current.is_symlink(), "portable-path contract: current link must be inside the checkout")
-        require(current.resolve(strict=True) == checkout / "testdeploy/releases/1",
-                "portable-path contract: current must resolve to its native release")
-        require((current / "payload.txt").read_bytes() == content,
-                "portable-path contract: published artifact content must be readable")
-        raise AssertionError("Baseline unexpectedly passed; reassess before any GREEN proposal")
+        omitted_anchor = work / "omitted-anchor"
+        shutil.copytree(SOURCE / "magento-paths", omitted_anchor)
+        entry = omitted_anchor / ".paas/deploy.php"
+        original = entry.read_text()
+        anchor = "set('checkout_root', dirname(__DIR__));"
+        require(original.count(anchor) == 1, "omitted-anchor control is ambiguous")
+        entry.write_text(original.replace(anchor, "// Anchor omitted for this negative control."))
+        code, output = run(command(php, phar, omitted_anchor, "paths:show", "deploy.php"),
+                           work / "unrelated", work, "omitted-anchor")
+        require(code != 0 and 'Config option "checkout_root" does not exist.' in output,
+                "missing anchor was not rejected by native configuration evaluation")
+        no_deployment(omitted_anchor)
+        print("EXPECTED_MISSING_ANCHOR_FAILURE", flush=True)
+
+        # Separate common-recipe filesystem publication with an inert, owned artifact.
+        checkout = work / "checkout-a"
+        shutil.copytree(SOURCE / "fixture", checkout)
+        fixture_hashes = config_hashes(checkout)
+        path_task(php, phar, checkout, checkout / ".paas", work, "common-config-dir-paths", False)
+        artifact(checkout, b"release-one\n")
+        code, _ = run(command(php, phar, checkout, "paths:publish", "deploy.php"),
+                      checkout, work, "publish-one-root")
+        require(code == 0, "first native artifact publication failed")
+        current(checkout, "1", b"release-one\n")
+        print("FIRST_NATIVE_ARTIFACT_PUBLICATION_VERIFIED", flush=True)
+
+        moved = work / "relocated/checkout-b"
+        checkout.rename(moved)
+        require(not checkout.exists(), "filesystem checkout was copied rather than moved")
+        require(config_hashes(moved) == fixture_hashes,
+                "checked-in configuration changed on physical relocation")
+        current(moved, "1", b"release-one\n")
+        path_task(php, phar, moved, work / "unrelated", work, "common-moved-paths", False)
+        artifact(moved, b"release-two\n")
+        code, _ = run(command(php, phar, moved, "paths:publish", "deploy.php"),
+                      work / "unrelated", work, "publish-two-unrelated-cwd")
+        require(code == 0, "second native artifact publication failed")
+        current(moved, "2", b"release-two\n")
+        require((moved / "testdeploy/releases/1/payload.txt").read_bytes() == b"release-one\n",
+                "previous release content changed")
+        history = [json.loads(line) for line in
+                   (moved / "testdeploy/.dep/releases_log").read_text().splitlines()]
+        require([item["release_name"] for item in history] == ["1", "2"],
+                "native release history did not advance twice")
+        require(config_hashes(moved) == fixture_hashes,
+                "checked-in configuration changed during publication")
+        for path in (moved / "testdeploy").rglob("*"):
+            if path.is_symlink():
+                require(path.resolve(strict=True).is_relative_to(moved),
+                        "a symlink escaped the relocated checkout")
+        print("RELOCATED_REPEATED_NATIVE_ARTIFACT_PUBLICATION_VERIFIED", flush=True)
+
+        missing = work / "missing-artifact"
+        shutil.copytree(SOURCE / "fixture", missing)
+        require(not (missing / "artifacts/payload.tar.gz").exists(),
+                "missing-artifact control unexpectedly has an archive")
+        code, output = run(command(php, phar, missing, "paths:publish", "deploy.php"),
+                           work / "unrelated", work, "missing-artifact")
+        upload_error = any("rsync:" in line and "No such file or directory" in line
+                           for line in output.splitlines())
+        require(code != 0 and "task paths:unpack" in output and upload_error
+                and (missing / "testdeploy/releases/1").is_dir(),
+                "missing artifact did not fail the actual native upload step")
+        require(not (missing / "testdeploy/public_html").exists()
+                and not (missing / "testdeploy/public_html").is_symlink(),
+                "missing-artifact control published current_path")
+        print("EXPECTED_MISSING_ARTIFACT_FAILURE", flush=True)
+        print(json.dumps({
+            "result": "NATIVE_PORTABLE_PATHS_VERIFIED",
+            "php": settings["php"],
+            "magento_mode": "native configuration inspection only; no application lifecycle",
+            "filesystem_mode": "common recipe, two inert-artifact publications and physical relocation",
+            "fixture_configuration_sha256": fixture_hashes,
+            "magento_configuration_sha256": magento_hashes,
+            "scope": "Linux filesystem/configuration; no original Magento/Docker/cron or cross-OS claim",
+        }), flush=True)
 
 
 if __name__ == "__main__":

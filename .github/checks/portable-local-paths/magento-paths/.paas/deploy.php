@@ -2,6 +2,7 @@
 
 namespace Deployer;
 
+set('checkout_root', dirname(__DIR__));
 import(__DIR__ . '/deploy.maml');
 
 task('paths:show', function () {

@@ -1,12 +1,12 @@
 {
   import: "recipe/magento2.php"
   config: {
-    current_path: "public_html"
+    current_path: "{{deploy_path}}/public_html"
   }
   hosts: {
     testdeploy: {
       local: true
-      deploy_path: "testdeploy"
+      deploy_path: "{{checkout_root}}/testdeploy"
     }
   }
 }

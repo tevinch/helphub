@@ -1,4 +1,4 @@
-name: Portable local deployment baseline
+name: Portable local deployment checks
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Check the native relative-path baseline
+      - name: Check anchored local deployment paths
         shell: bash
         run: |
           set -euo pipefail
@@ -66,10 +66,11 @@ jobs:
           import sys
           root = Path(sys.argv[1])
           expected = {
-              'fixture/.paas/deploy.maml': '33333a852a90757008e2b7809f4cf4156060b8b376f71f8a404f2efa5c0b5819',
-              'magento-paths/.paas/deploy.maml': '9797ee1bf7cce370a92770924f8ce140fadb45615dc5a518f788cf1638c5cf9a',
-              'magento-paths/.paas/deploy.php': '49968fa84ee6474784e9ee0dde8267a9c88f9d6ed612d0dbfbe163aebf46416b',
-              'verify.py': 'ab72f83e4ef909977b1ff4d64b62288a78fa9ec3e10658e4e18443e9435967cd',
+              'fixture/.paas/deploy.maml': '26970fe3076c337332438ed4a75b681899e80cbfa57aea3fcb6180c56ad93471',
+              'fixture/.paas/deploy.php': 'ddf20cfac9480a3b9a3cdc586c67478eca14d91b162109415ece1927a0bac8c1',
+              'magento-paths/.paas/deploy.maml': '0b41cbef1c4a833e9f9fe998e9c2d1e15d4d20295225061e59d31a5f9ea825a0',
+              'magento-paths/.paas/deploy.php': 'ddf20cfac9480a3b9a3cdc586c67478eca14d91b162109415ece1927a0bac8c1',
+              'verify.py': '5fc5d7d4e72187953dce66ed3ef4f1381174b3175c075b7e5c21ad57647c6904',
           }
           paths = list(root.rglob('*'))
           assert not any(path.is_symlink() for path in paths), 'source symlink'
@@ -77,7 +78,7 @@ jobs:
           assert set(actual) == set(expected), sorted(actual)
           for name, digest in expected.items():
               assert hashlib.sha256(actual[name].read_bytes()).hexdigest() == digest, name
-          print('Verified exactly four reviewed source files at the workflow commit.')
+          print('Verified exactly five reviewed source files at the workflow commit.')
           PY
           for tool in php python3 bash tar rsync; do command -v "$tool"; done
           php --version
