@@ -97,7 +97,7 @@ jobs:
           python3 - "$source" <<'PYHASH'
           import hashlib, pathlib, sys
           source = pathlib.Path(sys.argv[1])
-          expected = {'consumer/CMakeLists.txt': 'aa8679b330f36ae134b8087f5da69fbfef7f4c88287d3060b25103617e7dc74a', 'consumer/font-inspector.cpp': '12a7caa98f18cb6198cd080cbfc52fff42b53f97318f42ff55caeaf03d5060f1', 'sans12.qss': '0863e8c4978d22e61beab18d54515b632af2ddf106002ba5184fecea08482939', 'verify.py': 'a6072e15e1d93d5b160e8de1fbe2912c61dec1a262151160f38cc90892a0cd7b'}
+          expected = {'consumer/CMakeLists.txt': 'aa8679b330f36ae134b8087f5da69fbfef7f4c88287d3060b25103617e7dc74a', 'consumer/font-inspector.cpp': '12a7caa98f18cb6198cd080cbfc52fff42b53f97318f42ff55caeaf03d5060f1', 'sans12.qss': '0863e8c4978d22e61beab18d54515b632af2ddf106002ba5184fecea08482939', 'verify.py': 'caff5c96251f480c9a1c4f40bcbdbf1ec0216b9b34c8de4ada6e1c9d772e6557'}
           actual = {}
           for path in source.rglob('*'):
               if path.is_symlink():

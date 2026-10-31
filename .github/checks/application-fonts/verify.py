@@ -1,4 +1,4 @@
-"""Baseline-only native font observation. Requires the verified Linux SDK and tools."""
+"""Native checks for per-application font settings."""
 
 import argparse
 import hashlib
@@ -261,9 +261,18 @@ def green_cases(binary, sdk, env, work, default_family):
 
     baseline = native("omitted-stylesheet", cwd=spaced)
     require_rejection(baseline, default_family, "omitted-stylesheet")
+
+    # Stable 2.1 consumes these arguments as a style before its stylesheet parser.
+    # Preserve the failed forms as real negatives instead of weakening metadata.
     separate = native("stylesheet-separate-spaced", options=["-stylesheet", str(sheet)],
-                      stylesheet=sheet, cwd=spaced)
-    require_target(separate, default_family, "stylesheet-separate-spaced")
+                      cwd=spaced)
+    require_rejection(separate, default_family, "stylesheet-separate-spaced")
+    nonfinal = native("stylesheet-equals-nonfinal", options=["-stylesheet=" + str(sheet),
+                       "font-check-operand"], cwd=spaced)
+    require_rejection(nonfinal, default_family, "stylesheet-equals-nonfinal")
+
+    # After platform options are consumed, the only remaining argument must be
+    # the final equals form. Retained application flags are outside this check.
     equals = native("stylesheet-equals-spaced", options=["-stylesheet=" + str(sheet)],
                     stylesheet=sheet, cwd=spaced)
     require_target(equals, default_family, "stylesheet-equals-spaced")
@@ -271,7 +280,7 @@ def green_cases(binary, sdk, env, work, default_family):
     # The same formerly successful path becomes missing: an echoed file argument
     # alone cannot satisfy acceptance. Restore identical bytes for later cases.
     sheet.unlink()
-    removed = native("removed-stylesheet", options=["-stylesheet", str(sheet)],
+    removed = native("removed-stylesheet", options=["-stylesheet=" + str(sheet)],
                      stylesheet=sheet, cwd=spaced)
     require_rejection(removed, default_family, "removed-stylesheet")
     shutil.copyfile(sheet_source, sheet)
@@ -282,7 +291,7 @@ def green_cases(binary, sdk, env, work, default_family):
     require_rejection(missing, default_family, "missing-stylesheet")
     pixels = spaced / "twelve pixels.qss"
     pixels.write_text(expected_qss.replace("12pt", "12px"))
-    pixel_report = native("twelve-pixel-control", options=["-stylesheet", str(pixels)],
+    pixel_report = native("twelve-pixel-control", options=["-stylesheet=" + str(pixels)],
                           stylesheet=pixels, cwd=spaced)
     require(all(record["requestedPixelSize"] == 12 for record in pixel_report["widgets"]),
             "pixel control did not apply actual 12px rules")
@@ -314,10 +323,10 @@ def green_cases(binary, sdk, env, work, default_family):
     require(default_family != independently_matched[1], "omitted-Fontconfig control lacks a distinct expectation")
     for index in [0, 1, 0]:
         label = f"native-alias-{index}-visit-{len(cases)}"
-        report = native(label, options=["-stylesheet", str(sheet)], stylesheet=sheet,
+        report = native(label, options=["-stylesheet=" + str(sheet)], stylesheet=sheet,
                         case_env=alias_envs[index], cwd=spaced)
         require_target(report, independently_matched[index], label)
-    omitted_alias = native("omitted-fontconfig", options=["-stylesheet", str(sheet)],
+    omitted_alias = native("omitted-fontconfig", options=["-stylesheet=" + str(sheet)],
                            stylesheet=sheet, case_env=env, cwd=spaced)
     require_target(omitted_alias, default_family, "omitted-fontconfig-still-styled")
     require_rejection(omitted_alias, independently_matched[1], "omitted-fontconfig")
@@ -328,11 +337,17 @@ def green_cases(binary, sdk, env, work, default_family):
                if name.casefold() != baseline["style"].casefold()]
     require(options, "no distinct available native style for the optional style check")
     style = options[0]
-    style_only = native("native-style-only", options=["-style", style], cwd=spaced)
-    require(style_only["style"].casefold() == style.casefold(), "native style selector did not run")
-    styled = native("native-style-with-fonts", options=["-style", style, "-stylesheet", str(sheet)],
-                    stylesheet=sheet, cwd=spaced)
-    require_target(styled, default_family, "native-style-with-fonts")
+    # A process-local environment setting avoids the CLI compaction collision.
+    # Its unwrapped launch proves selection; do not infer a private wrapper base.
+    style_env = dict(env, QT_STYLE_OVERRIDE=style)
+    style_only = native("native-style-env-only", case_env=style_env, cwd=spaced)
+    require(style_only["style"].casefold() == style.casefold(), "native style setting did not run")
+    require_rejection(style_only, default_family, "native-style-env-only")
+    styled = native("native-style-env-with-fonts", options=["-stylesheet=" + str(sheet)],
+                    stylesheet=sheet, case_env=style_env, cwd=spaced)
+    require_target(styled, default_family, "native-style-env-with-fonts")
+    require(len(cases) == 13 and len(set(cases)) == 13,
+            "the thirteen distinct native cases did not complete")
     require(digest(binary) == binary_sha and digest(sheet) == sheet_sha,
             "binary/stylesheet changed during acceptance")
     print(json.dumps({"result": "NATIVE_APPLICATION_FONTS_VERIFIED", "cases": cases,
