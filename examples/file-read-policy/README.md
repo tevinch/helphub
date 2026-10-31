@@ -1,8 +1,10 @@
 # List files while denying one async read
 
-A test may need `Directory.GetFiles` to list two files, while `File.ReadAllBytesAsync` can read only one. Testably's `DefaultAccessControlStrategy` decides access from a path and its extension data; it does not receive the operation. In the pinned 7.1.1 release, denying a file there can also prevent enumeration.
+A test may need `Directory.GetFiles` to list two files, while `File.ReadAllBytesAsync` can read only one. In the pinned 7.1.1 release, Testably's `DefaultAccessControlStrategy` decides access from a path and its extension data; it does not receive operation context. Denying a file there can also prevent enumeration.
 
 The [native enumeration fix was released in Testably.Abstractions.Testing 7.1.2](https://github.com/Testably/Testably.Abstractions/releases/tag/v7.1.2), as [the maintainer confirms](https://github.com/Testably/Testably.Abstractions/issues/1158#issuecomment-6488572412). Prefer the native access-control strategy in that release for listing files while denying reads. This example remains pinned to **7.1.1** and demonstrates a narrower, method-specific `ReadAllBytesAsync` test policy. The maintainer's temporary flag-based workaround applies only when listing and reading happen in separate steps.
+
+[Testably 7.2.0](https://github.com/Testably/Testably.Abstractions/releases/tag/v7.2.0) adds a [callback overload](https://github.com/Testably/Testably.Abstractions/blob/v7.2.0/Source/Testably.Abstractions.Testing/FileSystem/DefaultAccessControlStrategy.cs) receiving an [`AccessRequest`](https://github.com/Testably/Testably.Abstractions/blob/v7.2.0/Source/Testably.Abstractions.Testing/FileSystem/AccessRequest.cs): `Access` is the requested `FileAccess`, and `IsDelete` marks deletion. See the [native access-control guide](https://docs.testably.org/Abstractions/file-system/access-control/) for policies based on this request. The fixture below remains pinned to 7.1.1 and has not been run against 7.2.0.
 
 This example keeps the application on `IFileSystem`. A small test-only [Castle interface proxy](https://www.castleproject.org/projects/dynamicproxy/) forwards calls to `MockFileSystem` and rejects `ReadAllBytesAsync` for one full path. The files remain in the mock.
 
