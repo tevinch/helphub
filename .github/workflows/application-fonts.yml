@@ -1,4 +1,4 @@
-name: Application font baseline
+name: Application font checks
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Observe native default fonts
+      - name: Check native font configuration
         shell: bash
         run: |
           set -euo pipefail
@@ -97,7 +97,7 @@ jobs:
           python3 - "$source" <<'PYHASH'
           import hashlib, pathlib, sys
           source = pathlib.Path(sys.argv[1])
-          expected = {'consumer/CMakeLists.txt': 'aa8679b330f36ae134b8087f5da69fbfef7f4c88287d3060b25103617e7dc74a', 'consumer/font-inspector.cpp': '12a7caa98f18cb6198cd080cbfc52fff42b53f97318f42ff55caeaf03d5060f1', 'verify.py': '8642a01caab5185a5b0a279e907cdef8d1827447defd3cb0a2e6756adc038908'}
+          expected = {'consumer/CMakeLists.txt': 'aa8679b330f36ae134b8087f5da69fbfef7f4c88287d3060b25103617e7dc74a', 'consumer/font-inspector.cpp': '12a7caa98f18cb6198cd080cbfc52fff42b53f97318f42ff55caeaf03d5060f1', 'sans12.qss': '0863e8c4978d22e61beab18d54515b632af2ddf106002ba5184fecea08482939', 'verify.py': 'a6072e15e1d93d5b160e8de1fbe2912c61dec1a262151160f38cc90892a0cd7b'}
           actual = {}
           for path in source.rglob('*'):
               if path.is_symlink():
