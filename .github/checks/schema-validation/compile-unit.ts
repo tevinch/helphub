@@ -15,6 +15,7 @@ export function compileUnit<Type>(unit: IJsonSchemaUnit<'3.1', Type>) {
     strict: true, validateSchema: true,
     coerceTypes: false, useDefaults: false, removeAdditional: false,
   });
+  ajv.addKeyword({ keyword: 'example' });
   addFormats(ajv);
   for (const [name, definition] of Object.entries(components.schemas ?? {})) {
     ajv.addSchema(definition, `#/components/schemas/${name}`);

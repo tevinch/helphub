@@ -51,13 +51,17 @@ for (const [name, input, expected] of cases) {
 }
 
 // Native refs are essential: omitting all referenced definitions must fail.
-const missingDefinitions = addFormats(new Ajv2020({ strict: true }));
+const missingDefinitions = new Ajv2020({ strict: true });
+missingDefinitions.addKeyword({ keyword: 'example' });
+addFormats(missingDefinitions);
 assert.throws(() => missingDefinitions.compile(schema), /resolve reference|can't resolve/i,
   'a skipped definition-registration step must not silently pass');
 
 // The sample has named examples. Emended examples must be converted to arrays
 // before a strict Ajv2020 instance can accept the schema metadata.
-const raw = addFormats(new Ajv2020({ strict: true }));
+const raw = new Ajv2020({ strict: true });
+raw.addKeyword({ keyword: 'example' });
+addFormats(raw);
 assert.throws(() => {
   for (const [name, definition] of Object.entries(unit.components.schemas ?? {})) {
     raw.addSchema(definition, `#/components/schemas/${name}`);
@@ -66,6 +70,7 @@ assert.throws(() => {
 }, /examples|schema is invalid/i, 'omitting the published conversion must fail schema validation');
 
 const noFormats = new Ajv2020({ strict: true });
+noFormats.addKeyword({ keyword: 'example' });
 assert.throws(() => {
   for (const [name, definition] of Object.entries(components.schemas ?? {})) {
     noFormats.addSchema(definition, `#/components/schemas/${name}`);
@@ -73,11 +78,21 @@ assert.throws(() => {
   noFormats.compile(schema);
 }, /unknown format/i, 'format registration must actually be required');
 
+const noOpenApiAnnotation = addFormats(new Ajv2020({ strict: true }));
+assert.throws(() => {
+  for (const [name, definition] of Object.entries(components.schemas ?? {})) {
+    noOpenApiAnnotation.addSchema(definition, `#/components/schemas/${name}`);
+  }
+  noOpenApiAnnotation.compile(schema);
+}, /unknown keyword.*example/i,
+  'omitting the known OpenAPI annotation must fail strict schema checking');
+
 assert.equal(decisions.length, 14, 'all literal positive and negative cases must execute');
 console.log(JSON.stringify({
   generatedDefinitions: Object.keys(unit.components.schemas),
   decisions,
   checks: ['native generated refs', 'original unit unchanged', 'strict Ajv compiled',
     '14 input decisions without mutation', 'missing definitions rejected',
-    'missing conversion rejected', 'missing formats rejected'],
+    'missing conversion rejected', 'missing formats rejected',
+    'missing OpenAPI annotation rejected'],
 }, null, 2));
