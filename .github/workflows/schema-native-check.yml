@@ -1,0 +1,136 @@
+name: Native schema validation checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/checks/schema-validation/**'
+      - '.github/workflows/schema-native-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check the pinned native schema baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_SERVER_URL" == 'https://github.com' ]]
+          [[ "$GITHUB_REPOSITORY" == 'tevinch/helphub' ]]
+          [[ "$GITHUB_REF" == 'refs/heads/main' ]]
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$(uname -s)" == 'Linux' && "$(uname -m)" == 'x86_64' ]]
+          uname -srm
+          work=$(mktemp -d "$RUNNER_TEMP/schema-native.XXXXXXXX")
+          cleanup() {
+            local status=$?
+            local cleanup_status=0
+            trap - EXIT
+            set +e
+            df -B1 "$RUNNER_TEMP"
+            chmod -R u+w "$work" || cleanup_status=$?
+            rm -rf -- "$work" || cleanup_status=$?
+            if (( cleanup_status != 0 )); then
+              printf 'Task directory cleanup failed: %s\n' "$cleanup_status" >&2
+            fi
+            df -B1 "$RUNNER_TEMP"
+            if (( status != 0 )); then exit "$status"; fi
+            exit "$cleanup_status"
+          }
+          trap cleanup EXIT
+          df -B1 "$work"
+          anon_git() {
+            env -i "PATH=$PATH" "HOME=$HOME" \
+              GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+              git -c credential.helper= -c http.extraHeader= "$@"
+          }
+          anon_git clone --quiet --depth=1 --no-checkout \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$work/source"
+          anon_git -C "$work/source" fetch --quiet --depth=1 origin "$GITHUB_SHA"
+          anon_git -C "$work/source" checkout --quiet --detach "$GITHUB_SHA"
+          [[ "$(anon_git -C "$work/source" rev-parse HEAD)" == "$GITHUB_SHA" ]]
+          fixture="$work/source/.github/checks/schema-validation"
+          python3 - "$fixture" <<'PY'
+          import hashlib
+          from pathlib import Path
+          import sys
+          root = Path(sys.argv[1])
+          expected = {
+              'demo.ts': '8fdaee2a917bce9cf6c5532630b5cf52e7fb6da476f1afc51bbb8f60c1826780',
+              'LICENSE': 'e237753559ac3cfd97258b76b76e52d2409097d6df6189eda4b5ef8eed679b45',
+              'model.ts': '05fbde98308bb57294c26d27b17cca56dd5f5f8276bcc841ce73a878fa80cf32',
+              'verify.mjs': '2e9afbf795a2cb31697efa108690a02d0cbdee7e7dd17c24302bccdf6179d424',
+              'package-lock.json': '4bb3f46dd4eb6926208c8ea7cfdb0a9dd25e929f30d086e7ac8a327785101b46',
+              'package.json': 'b9fccc0914e2d7a87146dc5176c4fe4a5da5fe19abd3ac66081770ea176572e5',
+              'compile-unit.ts': 'ba356f18214ba4e67aea49d79d65e1dc7b858c7a845d5a43dd31d309524dc838',
+              'tsconfig.json': '0e1295170d062d96bcdab110789c15bd5cd68b9c86df3d95639a020ec9a60375',
+              'monitor.py': 'e59b4d9aa48705fdb67338600291451f52085583086058a483acf41590938252',
+          }
+          actual = {path.name: path for path in root.iterdir()}
+          assert set(actual) == set(expected), sorted(actual)
+          for name, digest in expected.items():
+              path = actual[name]
+              assert path.is_file() and not path.is_symlink(), name
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, name
+          print('Verified exactly nine reviewed files at the workflow commit.')
+          PY
+
+          base='https://nodejs.org/dist/v24.21.0'
+          archive='node-v24.21.0-linux-x64.tar.xz'
+          node_sha='fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6'
+          curl --disable --fail --location --proto '=https' --proto-redir '=https' \
+            --connect-timeout 15 --max-time 120 \
+            --output "$work/SHASUMS256.txt" "$base/SHASUMS256.txt"
+          python3 - "$work/SHASUMS256.txt" "$archive" "$node_sha" <<'PY'
+          from pathlib import Path
+          import sys
+          entries = [line.split() for line in Path(sys.argv[1]).read_text().splitlines()]
+          matches = [entry[0] for entry in entries if len(entry) == 2 and entry[1] == sys.argv[2]]
+          assert matches == [sys.argv[3]], matches
+          print('Fresh official Node release checksum matches the pinned Linux-x64 archive.')
+          PY
+          curl --disable --fail --location --proto '=https' --proto-redir '=https' \
+            --connect-timeout 15 --max-time 180 \
+            --output "$work/$archive" "$base/$archive"
+          printf '%s  %s\n' "$node_sha" "$work/$archive" | sha256sum --check -
+          mkdir "$work/node" "$work/tmp" "$work/npm-cache" "$work/ttsc" "$work/go-modules" "$work/go-tmp"
+          : > "$work/npmrc-user"
+          : > "$work/npmrc-global"
+          tar -xJf "$work/$archive" --strip-components=1 -C "$work/node"
+          [[ "$("$work/node/bin/node" --version)" == 'v24.21.0' ]]
+          run_env=(env -i "PATH=$work/node/bin:/usr/local/bin:/usr/bin:/bin" "HOME=$HOME"
+            "TMPDIR=$work/tmp" "TTSC_CACHE_DIR=$work/ttsc" "GOMODCACHE=$work/go-modules"
+            "GOTMPDIR=$work/go-tmp" "npm_config_cache=$work/npm-cache"
+            "npm_config_userconfig=$work/npmrc-user" "npm_config_globalconfig=$work/npmrc-global" CI=true)
+          "${run_env[@]}" node --version
+          "${run_env[@]}" npm --version
+          "${run_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$fixture" -- \
+            npm ci --ignore-scripts --no-audit --no-fund 2>&1 | tee "$work/npm-ci.log"
+
+          # A fresh stock compiler output must reach typia's missing-transform error.
+          [[ ! -e "$fixture/stock-dist" && ! -e "$fixture/dist" ]]
+          "${run_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$fixture" -- \
+            node node_modules/typescript/bin/tsc -p tsconfig.json --outDir stock-dist \
+            2>&1 | tee "$work/stock-build.log"
+          set +e
+          "${run_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$fixture" -- \
+            node stock-dist/model.js 2>&1 | tee "$work/stock-model.log"
+          stock_status=("${PIPESTATUS[@]}")
+          set -e
+          [[ "${stock_status[0]}" == '1' && "${stock_status[1]}" == '0' ]]
+          python3 - "$work/stock-model.log" <<'PY'
+          from pathlib import Path
+          import sys
+          text = Path(sys.argv[1]).read_text()
+          assert 'Error on typia.json.schema(): no transform has been configured.' in text, text
+          assert '"stopped_for_disk": true' not in text, text
+          print('Stock output reached the specific missing-transform control.')
+          PY
+
+          # The native baseline is intentionally still RED; retain its actual exit.
+          "${run_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$fixture" -- \
+            npm test 2>&1 | tee "$work/npm-test.log"
