@@ -51,5 +51,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Typia schema validation](examples/schema-validation) | Generate a native typia schema, convert its root and components, and validate inputs with strict Ajv2020. |
 | [Observable array moves](examples/observable-array-move) | Move an item in place while keeping object identities and one final observer notification per batch. |
 | [Portable local deployment paths](examples/portable-local-paths) | Derive absolute Deployer paths from each checkout and verify local publication after relocation. |
+| [Application font settings](examples/application-fonts) | Request Sans at 12 points with a CopperSpice stylesheet while retaining Fontconfig alias resolution. |
 
 The examples are free to use under the MIT license.
