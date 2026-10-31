@@ -46,5 +46,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [CSV inventory and boxes](examples/csv-boxes) | Import inventory with new room paths, convert nested boxes and recognize repeated rows in Kept. |
 | [CLI11 stdin configuration](examples/stdin-config) | Read configuration from stdin or a file while preserving CLI11 precedence and validation. |
 | [MCP HTTP requests](examples/mcp-http-requests) | List and call Quarkus MCP tools with complete stateless and stateful curl requests. |
+| [Prepared form submission](examples/prepared-submit) | Share synchronous prepared data between native TanStack Form validation and submission without doing the preparation twice. |
 
 The examples are free to use under the MIT license.
