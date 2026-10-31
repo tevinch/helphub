@@ -48,5 +48,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [MCP HTTP requests](examples/mcp-http-requests) | List and call Quarkus MCP tools with complete stateless and stateful curl requests. |
 | [Prepared form submission](examples/prepared-submit) | Share synchronous prepared data between native TanStack Form validation and submission without doing the preparation twice. |
 | [.NET installation roots](examples/dotnet-installation-roots) | Compare package records, command aliases and each host’s SDK list without changing installations. |
+| [Typia schema validation](examples/schema-validation) | Generate a native typia schema, convert its root and components, and validate inputs with strict Ajv2020. |
 
 The examples are free to use under the MIT license.

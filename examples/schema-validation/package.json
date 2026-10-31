@@ -1,0 +1,25 @@
+{
+  "name": "schema-validation-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "scripts": {
+    "build": "ttsc -p tsconfig.json",
+    "test": "npm run build && node verify.mjs",
+    "start": "node dist/demo.js"
+  },
+  "dependencies": {
+    "@typia/utils": "15.2.2",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "typia": "15.2.2"
+  },
+  "devDependencies": {
+    "ttsc": "0.34.3",
+    "typescript": "7.0.2"
+  }
+}
