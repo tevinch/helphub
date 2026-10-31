@@ -47,5 +47,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [CLI11 stdin configuration](examples/stdin-config) | Read configuration from stdin or a file while preserving CLI11 precedence and validation. |
 | [MCP HTTP requests](examples/mcp-http-requests) | List and call Quarkus MCP tools with complete stateless and stateful curl requests. |
 | [Prepared form submission](examples/prepared-submit) | Share synchronous prepared data between native TanStack Form validation and submission without doing the preparation twice. |
+| [.NET installation roots](examples/dotnet-installation-roots) | Compare package records, command aliases and each host’s SDK list without changing installations. |
 
 The examples are free to use under the MIT license.
