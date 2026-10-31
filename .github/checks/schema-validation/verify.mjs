@@ -10,8 +10,15 @@ const valid = {
   email: 'person@example.com', address: { city: 'London', postalCode: '12345' },
 };
 const before = JSON.stringify(unit);
+console.log(JSON.stringify({ nativeSchemaUnit: unit }, null, 2));
 assert.equal(unit.version, '3.1');
-assert.ok(unit.schema.$ref, 'the native root must reference a generated component');
+assert.equal(unit.schema.type, 'object', 'the native root is dereferenced to an object');
+const addressReference = unit.schema.properties?.address?.$ref;
+assert.equal(typeof addressReference, 'string', 'the nested Address must remain a generated reference');
+const componentPrefix = '#/components/schemas/';
+assert.ok(addressReference.startsWith(componentPrefix), 'the nested reference must name a local component');
+assert.ok(unit.components.schemas?.[addressReference.slice(componentPrefix.length)],
+  'the native component map must contain the actual referenced Address');
 assert.ok(Object.keys(unit.components.schemas ?? {}).length >= 2,
   'the native transform must generate the User and Address definitions');
 

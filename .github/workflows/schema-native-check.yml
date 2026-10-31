@@ -63,7 +63,7 @@ jobs:
               'demo.ts': '8fdaee2a917bce9cf6c5532630b5cf52e7fb6da476f1afc51bbb8f60c1826780',
               'LICENSE': 'e237753559ac3cfd97258b76b76e52d2409097d6df6189eda4b5ef8eed679b45',
               'model.ts': '05fbde98308bb57294c26d27b17cca56dd5f5f8276bcc841ce73a878fa80cf32',
-              'verify.mjs': '2e9afbf795a2cb31697efa108690a02d0cbdee7e7dd17c24302bccdf6179d424',
+              'verify.mjs': 'c0572066c290d6468da7fed7c48a01e62f94a08cd61d31bdb36a137bbe81d5c3',
               'package-lock.json': '4bb3f46dd4eb6926208c8ea7cfdb0a9dd25e929f30d086e7ac8a327785101b46',
               'package.json': 'b9fccc0914e2d7a87146dc5176c4fe4a5da5fe19abd3ac66081770ea176572e5',
               'compile-unit.ts': 'ba356f18214ba4e67aea49d79d65e1dc7b858c7a845d5a43dd31d309524dc838',
