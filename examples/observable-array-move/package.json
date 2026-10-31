@@ -1,0 +1,13 @@
+{
+  "name": "observable-array-move",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --test",
+    "start": "node demo.js"
+  },
+  "dependencies": { "@legendapp/state": "2.1.15" }
+}
