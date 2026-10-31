@@ -1,0 +1,116 @@
+name: Application font baseline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/checks/application-fonts/**'
+      - '.github/workflows/application-fonts.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Observe native default fonts
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_path=/usr/local/bin:/usr/bin:/bin
+          test "${GITHUB_REPOSITORY}" = tevinch/helphub
+          test "${GITHUB_SERVER_URL}" = https://github.com
+          test "${GITHUB_REF}" = refs/heads/main
+          [[ "${GITHUB_SHA}" =~ ^[0-9a-f]{40}$ ]]
+          test "$(uname -s)" = Linux
+          test "$(uname -m)" = x86_64
+          runner_temp=$(realpath -e -- "${RUNNER_TEMP}")
+          test -d "$runner_temp"
+          test "$runner_temp" != /
+          work=$(mktemp -d "$runner_temp/application-fonts.XXXXXXXX")
+          cleanup() {
+            primary_status=$?
+            trap - EXIT
+            if env -i PATH="$task_path" /usr/bin/python3 - "$runner_temp" "$work" <<'PYCLEAN'
+          import os, pathlib, re, shutil, stat, sys
+          parent = pathlib.Path(sys.argv[1]).resolve(strict=True)
+          work = pathlib.Path(sys.argv[2])
+          if (parent == pathlib.Path('/') or work.parent != parent
+                  or not re.fullmatch(r'application-fonts\.[A-Za-z0-9]{8}', work.name)
+                  or work.is_symlink() or not work.is_dir()
+                  or work.resolve(strict=True) != work
+                  or work.stat().st_uid != os.getuid()):
+              raise SystemExit('Refusing unsafe cleanup path')
+          try:
+              shutil.rmtree(work)
+          except OSError:
+              if work.exists():
+                  work.chmod(0o700)
+                  for root, directories, _ in os.walk(work, topdown=True, followlinks=False):
+                      for name in directories:
+                          path = pathlib.Path(root) / name
+                          if not path.is_symlink():
+                              if path.stat().st_uid != os.getuid():
+                                  raise SystemExit('Refusing permission recovery for a foreign directory')
+                              path.chmod(0o700)
+                  shutil.rmtree(work)
+          if work.exists() or work.is_symlink():
+              raise SystemExit('Owned work tree remains after cleanup')
+          print('Owned work tree cleanup complete', flush=True)
+          PYCLEAN
+            then
+              cleanup_status=0
+            else
+              cleanup_status=$?
+              printf 'Owned cleanup failed with status %s\n' "$cleanup_status" >&2
+            fi
+            if test "$primary_status" -eq 0 && test "$cleanup_status" -ne 0; then
+              primary_status=$cleanup_status
+            fi
+            exit "$primary_status"
+          }
+          trap cleanup EXIT
+          trap 'exit 143' TERM
+          trap 'exit 130' INT
+          mkdir -m 700 "$work/home" "$work/tmp"
+          task_home="$work/home"
+          task_tmp="$work/tmp"
+          printf 'Runner image: %s\n' "${ImageVersion:-unreported}"
+          python3 - "$work" <<'PYGUARD'
+          import shutil, sys
+          free = shutil.disk_usage(sys.argv[1]).free
+          print('Free bytes before download:', free, flush=True)
+          if free < 1024 ** 3:
+              raise SystemExit('Free-space prerequisite failed')
+          PYGUARD
+          clean=(env -i PATH="$task_path" HOME="$task_home" TMPDIR="$task_tmp" LANG=C.UTF-8 LC_ALL=C.UTF-8)
+          "${clean[@]}" git -c init.defaultBranch=main init -q "$work/checkout"
+          "${clean[@]}" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+            git -C "$work/checkout" -c credential.helper= -c http.extraHeader= \
+            fetch --quiet --depth=1 https://github.com/tevinch/helphub "$GITHUB_SHA"
+          "${clean[@]}" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+            git -C "$work/checkout" checkout --quiet --detach FETCH_HEAD
+          test "$("${clean[@]}" git -C "$work/checkout" rev-parse HEAD)" = "$GITHUB_SHA"
+          source="$work/checkout/.github/checks/application-fonts"
+          python3 - "$source" <<'PYHASH'
+          import hashlib, pathlib, sys
+          source = pathlib.Path(sys.argv[1])
+          expected = {'consumer/CMakeLists.txt': 'aa8679b330f36ae134b8087f5da69fbfef7f4c88287d3060b25103617e7dc74a', 'consumer/font-inspector.cpp': '12a7caa98f18cb6198cd080cbfc52fff42b53f97318f42ff55caeaf03d5060f1', 'verify.py': '8642a01caab5185a5b0a279e907cdef8d1827447defd3cb0a2e6756adc038908'}
+          actual = {}
+          for path in source.rglob('*'):
+              if path.is_symlink():
+                  raise SystemExit('Source contains a symlink')
+              if path.is_file():
+                  actual[str(path.relative_to(source))] = hashlib.sha256(path.read_bytes()).hexdigest()
+          if actual != expected:
+              raise SystemExit('Reviewed source manifest mismatch')
+          print('Exact reviewed source manifest:', actual, flush=True)
+          PYHASH
+          sdk="$work/copperspice-2.1.0-ubuntu24.04-x64.tar.bz2"
+          "${clean[@]}" curl -q --fail --location --proto '=https' --proto-redir '=https' \
+            --connect-timeout 20 --max-time 120 --max-filesize 46307026 \
+            --output "$sdk" \
+            https://github.com/copperspice/copperspice/releases/download/cs-2.1.0/copperspice-2.1.0-ubuntu24.04-x64.tar.bz2
+          "${clean[@]}" python3 "$source/verify.py" --sdk-archive "$sdk" --work-parent "$work"
