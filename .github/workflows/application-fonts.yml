@@ -108,6 +108,138 @@ jobs:
               raise SystemExit('Reviewed source manifest mismatch')
           print('Exact reviewed source manifest:', actual, flush=True)
           PYHASH
+          # Prepare the SDK's two development link dependencies from official Ubuntu sources.
+          test -r /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          test -x /usr/bin/apt-get
+          test -x /usr/bin/apt-cache
+          test -x /usr/bin/timeout
+          test -x /usr/bin/sudo
+          test "$(dpkg --print-architecture)" = amd64
+          . /etc/os-release
+          test "$ID" = ubuntu
+          test "$VERSION_ID" = 24.04
+          apt_work="$work/apt"
+          mkdir -m 755 "$apt_work" "$apt_work/empty" "$apt_work/lists"
+          # _apt may traverse the public metadata path; HOME/TMP remain mode0700.
+          chmod 711 "$work"
+          cat > "$apt_work/sources.list" <<'APTSOURCES'
+          deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] https://archive.ubuntu.com/ubuntu noble main
+          deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] https://archive.ubuntu.com/ubuntu noble-updates main
+          deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] https://security.ubuntu.com/ubuntu noble-security main
+          APTSOURCES
+          cat > "$apt_work/apt.conf" <<APTCONF
+          Dir::Etc::parts "$apt_work/empty";
+          Dir::Etc::main "/dev/null";
+          Dir::Etc::sourcelist "$apt_work/sources.list";
+          Dir::Etc::sourceparts "$apt_work/empty";
+          Dir::Etc::preferences "/dev/null";
+          Dir::Etc::preferencesparts "$apt_work/empty";
+          Dir::Etc::netrc "/dev/null";
+          Dir::Etc::netrcparts "$apt_work/empty";
+          Dir::Etc::trusted "/dev/null";
+          Dir::Etc::trustedparts "$apt_work/empty";
+          Dir::State::lists "$apt_work/lists";
+          Dir::Cache::pkgcache "";
+          Dir::Cache::srcpkgcache "";
+          APT::Install-Recommends "false";
+          APT::Install-Suggests "false";
+          APT::Get::AllowUnauthenticated "false";
+          Acquire::AllowInsecureRepositories "false";
+          Acquire::AllowDowngradeToInsecureRepositories "false";
+          Acquire::Check-Valid-Until "true";
+          Acquire::Languages "none";
+          Acquire::https::Verify-Peer "true";
+          Acquire::https::Verify-Host "true";
+          APTCONF
+          chmod 644 "$apt_work/apt.conf" "$apt_work/sources.list"
+          apt_clean=(env -i PATH="$task_path" HOME="$task_home" TMPDIR="$task_tmp" LANG=C.UTF-8 LC_ALL=C.UTF-8 APT_CONFIG="$apt_work/apt.conf")
+          # Read-only host package/key provenance; no new repository/key is installed.
+          "${clean[@]}" dpkg-query -W ubuntu-keyring
+          "${clean[@]}" dpkg-query -S /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          # Metadata update runs unprivileged into fresh task-owned lists.
+          "${apt_clean[@]}" /usr/bin/timeout --signal=TERM --kill-after=10s 180s \
+            /usr/bin/apt-get --error-on=any update
+          "${apt_clean[@]}" /usr/bin/python3 - "$apt_work" <<'APTPLAN'
+          import email.parser, json, pathlib, re, subprocess, sys
+          root = pathlib.Path(sys.argv[1])
+          allowed_sites = {'archive.ubuntu.com', 'security.ubuntu.com'}
+          allowed_suites = {'noble', 'noble-updates', 'noble-security'}
+          releases = list((root / 'lists').glob('*_InRelease'))
+          if len(releases) != 3:
+              raise SystemExit('Expected all three fresh authenticated Ubuntu release files')
+          for path in releases:
+              text = path.read_text().split('\n\n', 1)[1].split('\n-----BEGIN PGP SIGNATURE-----', 1)[0]
+              fields = email.parser.Parser().parsestr(text)
+              if (fields['Origin'] != 'Ubuntu' or fields['Label'] != 'Ubuntu'
+                      or fields['Codename'] != 'noble' or fields['Suite'] not in allowed_suites):
+                  raise SystemExit('Unexpected signed repository release identity')
+              print(json.dumps({'release': path.name, 'origin': fields['Origin'], 'suite': fields['Suite']}))
+          
+          def command(args):
+              result = subprocess.run(args, capture_output=True, text=True, timeout=90, check=True)
+              print(result.stdout, end='', flush=True)
+              if result.stderr:
+                  print(result.stderr, file=sys.stderr, end='', flush=True)
+              return result.stdout
+          
+          def candidate(name, required=None):
+              if not re.fullmatch(r'[a-z0-9][a-z0-9+.-]*(?::amd64)?', name):
+                  raise SystemExit('Unexpected package name')
+              policy = command(['/usr/bin/apt-cache', 'policy', name])
+              found = re.search(r'^\s*Candidate:\s*(\S+)\s*$', policy, re.M)
+              if not found or found[1] == '(none)' or (required is not None and found[1] != required):
+                  raise SystemExit('Missing or changed package candidate')
+              version, active, origins = found[1], False, []
+              for line in policy.splitlines():
+                  header = re.fullmatch(r'\s+(?:\*\*\*\s+)?(\S+)\s+\d+\s*', line)
+                  if header:
+                      active = header[1] == version
+                  elif active and re.search(r'\s(?:https?://)', line):
+                      match = re.fullmatch(r'\s+\d+ https[:]//([^/]+)/ubuntu (\S+)/main amd64 Packages\s*', line)
+                      if not match or match[1] not in allowed_sites or match[2] not in allowed_suites:
+                          raise SystemExit('Non-Ubuntu candidate source')
+                      origins.append({'site': match[1], 'suite': match[2]})
+              if not origins:
+                  raise SystemExit('Candidate lacks a verified Ubuntu package index')
+              return version, origins
+          
+          requested = ['libopengl-dev', 'libglx-dev']
+          pins = {name: candidate(name)[0] for name in requested}
+          simulation = command(['/usr/bin/apt-get', '--simulate', '--no-remove', '--no-install-recommends',
+                                'install', *(f'{name}={version}' for name, version in pins.items())])
+          changes = []
+          for line in simulation.splitlines():
+              if line.startswith('Remv '):
+                  raise SystemExit('Package removal is outside this setup')
+              if line.startswith('Inst '):
+                  # A bracketed old version would mean an existing package changes: stop.
+                  match = re.match(r'^Inst ([a-z0-9][a-z0-9+.:_-]*) \((\S+) ', line)
+                  if not match:
+                      raise SystemExit('Existing-package change or unexpected APT plan')
+                  name, version = match.groups()
+                  selected, origins = candidate(name, version)
+                  metadata = command(['/usr/bin/apt-cache', 'show', '--no-all-versions', f'{name}={selected}'])
+                  size = re.search(r'^Size: (\d+)$', metadata, re.M)
+                  if not size:
+                      raise SystemExit('Missing authenticated package size')
+                  changes.append({'name': name, 'version': selected, 'origins': origins, 'bytes': int(size[1])})
+                  pins[name] = selected
+          if len(changes) > 20 or sum(change['bytes'] for change in changes) > 50 * 1024 ** 2:
+              raise SystemExit('Ordinary dependency plan exceeds bounds')
+          (root / 'pins.txt').write_text(''.join(f'{name}={version}\n' for name, version in sorted(pins.items())))
+          print(json.dumps({'requested': requested, 'authenticatedInstallPlan': changes, 'pins': pins}), flush=True)
+          APTPLAN
+          mapfile -t apt_pins < "$apt_work/pins.txt"
+          test "${#apt_pins[@]}" -ge 2
+          # Keep APT's normal archive, sandbox, dpkg and log paths for this ephemeral job.
+          sudo -n env -i PATH="$task_path" HOME="$task_home" TMPDIR="$task_tmp" LANG=C.UTF-8 LC_ALL=C.UTF-8 \
+            DEBIAN_FRONTEND=noninteractive APT_CONFIG="$apt_work/apt.conf" \
+            /usr/bin/timeout --signal=TERM --kill-after=10s 180s \
+            /usr/bin/apt-get --assume-yes --no-remove --no-upgrade --no-install-recommends install "${apt_pins[@]}"
+          "${clean[@]}" dpkg-query -W libopengl-dev libglx-dev
+          "${clean[@]}" dpkg-query -S /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so
+          test -f /usr/lib/x86_64-linux-gnu/libOpenGL.so
+          test -f /usr/lib/x86_64-linux-gnu/libGLX.so
           sdk="$work/copperspice-2.1.0-ubuntu24.04-x64.tar.bz2"
           "${clean[@]}" curl -q --fail --location --proto '=https' --proto-redir '=https' \
             --connect-timeout 20 --max-time 120 --max-filesize 46307026 \
