@@ -90,6 +90,17 @@ def relative_link_failure(output: str, checkout: Path) -> bool:
     )
 
 
+def relative_cwd_failure(output: str, checkout: Path) -> bool:
+    root_deployment = checkout / "testdeploy"
+    return (
+        'The provided cwd "testdeploy" does not exist.' in output
+        and "recipe/deploy/release.php(87)" in output
+        and "task deploy:release" in output
+        and (checkout / ".paas/testdeploy").is_dir()
+        and not root_deployment.exists() and not root_deployment.is_symlink()
+    )
+
+
 def inspect_magento_paths(output: str) -> None:
     results = []
     decoder = json.JSONDecoder()
@@ -165,27 +176,45 @@ def main() -> None:
                 "omitted-recipe inspection ran a deployment lifecycle")
         print("EXPECTED_OMITTED_MAGENTO_IMPORT_REJECTION", flush=True)
 
-        # No Magento recipe or application hooks exist in this separate fixture.
-        checkout = work / "checkout-a"
-        shutil.copytree(SOURCE / "fixture", checkout)
-        artifact_dir = checkout / ".paas/artifacts"
-        artifact_dir.mkdir()
+        # Fresh identical configurations isolate the invocation cwd as a diagnostic.
+        # Changing cwd is not the proposed consumer configuration fix.
+        config_bytes = (SOURCE / "fixture/.paas/deploy.maml").read_bytes()
         content = b"release-one\n"
-        member = tarfile.TarInfo("payload.txt")
-        member.size, member.mode, member.mtime = len(content), 0o644, 0
-        with tarfile.open(artifact_dir / "payload.tar.gz", "w:gz") as archive:
-            archive.addfile(member, io.BytesIO(content))
-        code, output = run(command(php, phar, checkout, "paths:publish", "deploy.maml"),
-                           checkout, work, "native-relative-publication")
-        if code != 0:
-            behavior_red = relative_link_failure(output, checkout)
-            print(json.dumps({
-                "phase": "native-relative-publication",
-                "classification": "BEHAVIOR_RED_NATIVE_RELATIVE_LINK" if behavior_red
-                                  else "SETUP_OR_UNEXPECTED_FAILURE",
-                "native_exit_code": code,
-            }), flush=True)
-            require(behavior_red, "failure did not reach the required native relative-link operation")
+        for invocation in ("root", "config-dir"):
+            checkout = work / f"checkout-{invocation}"
+            shutil.copytree(SOURCE / "fixture", checkout)
+            require((checkout / ".paas/deploy.maml").read_bytes() == config_bytes,
+                    "diagnostic configuration bytes changed")
+            artifact_dir = checkout / ".paas/artifacts"
+            artifact_dir.mkdir()
+            member = tarfile.TarInfo("payload.txt")
+            member.size, member.mode, member.mtime = len(content), 0o644, 0
+            with tarfile.open(artifact_dir / "payload.tar.gz", "w:gz") as archive:
+                archive.addfile(member, io.BytesIO(content))
+            cwd = checkout if invocation == "root" else checkout / ".paas"
+            code, output = run(command(php, phar, checkout, "paths:publish", "deploy.maml"),
+                               cwd, work, f"native-relative-{invocation}")
+            if invocation == "root":
+                cwd_variant = code != 0 and relative_cwd_failure(output, checkout)
+                print(json.dumps({
+                    "phase": "native-relative-root",
+                    "classification": "NATIVE_RELATIVE_CWD_FAILURE" if cwd_variant
+                                      else "SETUP_OR_UNEXPECTED_FAILURE",
+                    "native_exit_code": code,
+                    "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
+                }), flush=True)
+                require(cwd_variant, "root invocation did not reproduce the observed native cwd failure")
+                continue
+            if code != 0:
+                behavior_red = relative_link_failure(output, checkout)
+                print(json.dumps({
+                    "phase": "native-relative-config-dir",
+                    "classification": "BEHAVIOR_RED_NATIVE_RELATIVE_LINK" if behavior_red
+                                      else "SETUP_OR_UNEXPECTED_FAILURE",
+                    "native_exit_code": code,
+                    "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
+                }), flush=True)
+                require(behavior_red, "config-dir invocation did not reach the native relative-link failure")
         require(code == 0, "portable-path contract: native artifact publication must complete")
         current = checkout / "testdeploy/public_html"
         require(current.is_symlink(), "portable-path contract: current link must be inside the checkout")

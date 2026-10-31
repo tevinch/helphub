@@ -69,7 +69,7 @@ jobs:
               'fixture/.paas/deploy.maml': '33333a852a90757008e2b7809f4cf4156060b8b376f71f8a404f2efa5c0b5819',
               'magento-paths/.paas/deploy.maml': '9797ee1bf7cce370a92770924f8ce140fadb45615dc5a518f788cf1638c5cf9a',
               'magento-paths/.paas/deploy.php': '49968fa84ee6474784e9ee0dde8267a9c88f9d6ed612d0dbfbe163aebf46416b',
-              'verify.py': 'e4a05aaaa310462b6fff3fd62a12a87bd25f971ae5f35d46b765828abb9970ae',
+              'verify.py': 'ab72f83e4ef909977b1ff4d64b62288a78fa9ec3e10658e4e18443e9435967cd',
           }
           paths = list(root.rglob('*'))
           assert not any(path.is_symlink() for path in paths), 'source symlink'
