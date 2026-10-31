@@ -108,7 +108,7 @@ jobs:
               raise SystemExit('Reviewed source manifest mismatch')
           print('Exact reviewed source manifest:', actual, flush=True)
           PYHASH
-          # Prepare the SDK's two development link dependencies from official Ubuntu sources.
+          # Prepare the SDK's link and observed XCB runtime dependencies from Ubuntu.
           test -r /usr/share/keyrings/ubuntu-archive-keyring.gpg
           test -x /usr/bin/apt-get
           test -x /usr/bin/apt-cache
@@ -203,7 +203,9 @@ jobs:
                   raise SystemExit('Candidate lacks a verified Ubuntu package index')
               return version, origins
           
-          requested = ['libopengl-dev', 'libglx-dev']
+          requested = ['libopengl-dev', 'libglx-dev',
+              'libxcb-image0', 'libxcb-icccm4', 'libxcb-shape0', 'libxcb-keysyms1',
+              'libxcb-xinerama0', 'libxcb-xkb1', 'libxcb-render-util0', 'libxkbcommon-x11-0']
           pins = {name: candidate(name)[0] for name in requested}
           simulation = command(['/usr/bin/apt-get', '--simulate', '--no-remove', '--no-install-recommends',
                                 'install', *(f'{name}={version}' for name, version in pins.items())])
