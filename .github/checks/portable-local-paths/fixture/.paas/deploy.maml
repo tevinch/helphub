@@ -1,0 +1,27 @@
+{
+  import: "recipe/common.php"
+  config: {
+    current_path: "public_html"
+    artifact_path: "artifacts/payload.tar.gz"
+    user: "Tevinch"
+    target: "HEAD"
+  }
+  hosts: {
+    testdeploy: {
+      local: true
+      deploy_path: "testdeploy"
+    }
+  }
+  tasks: {
+    "paths:unpack": [
+      { upload: { src: "{{artifact_path}}", dest: "{{release_path}}/payload.tar.gz" } }
+      { run: "tar -xzf {{release_path}}/payload.tar.gz -C {{release_path}}" }
+    ]
+    "paths:publish": [
+      "deploy:setup"
+      "deploy:release"
+      "paths:unpack"
+      "deploy:symlink"
+    ]
+  }
+}

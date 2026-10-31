@@ -1,0 +1,12 @@
+{
+  import: "recipe/magento2.php"
+  config: {
+    current_path: "public_html"
+  }
+  hosts: {
+    testdeploy: {
+      local: true
+      deploy_path: "testdeploy"
+    }
+  }
+}

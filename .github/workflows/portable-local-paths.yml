@@ -1,0 +1,97 @@
+name: Portable local deployment baseline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/checks/portable-local-paths/**'
+      - '.github/workflows/portable-local-paths.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check the native relative-path baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_SERVER_URL" == 'https://github.com' ]]
+          [[ "$GITHUB_REPOSITORY" == 'tevinch/helphub' ]]
+          [[ "$GITHUB_REF" == 'refs/heads/main' ]]
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$(uname -s)" == 'Linux' && "$(uname -m)" == 'x86_64' ]]
+          task_path='/usr/local/bin:/usr/bin:/bin'
+          runner_tmp=$(realpath -- "$RUNNER_TEMP")
+          work=$(mktemp -d "$runner_tmp/portable-paths.XXXXXXXX")
+          cleanup() {
+            local status=$?
+            local cleanup_status=0
+            trap - EXIT
+            set +e
+            if [[ -d "$work" && ! -L "$work" && "$(dirname -- "$work")" == "$runner_tmp" && "$(basename -- "$work")" == portable-paths.* ]]; then
+              chmod -R u+w "$work" || cleanup_status=$?
+              rm -rf -- "$work" || cleanup_status=$?
+            else
+              printf 'Refused cleanup outside the owned task directory.\n' >&2
+              cleanup_status=1
+            fi
+            df -B1 "$runner_tmp"
+            if (( status != 0 )); then exit "$status"; fi
+            exit "$cleanup_status"
+          }
+          trap cleanup EXIT
+          mkdir "$work/home" "$work/tests"
+          uname -srm
+          printf 'Runner image: %s\n' "${ImageVersion:-unknown}"
+          df -B1 "$work"
+          [[ "$(df -B1 --output=avail "$work" | tail -1 | tr -d ' ')" -ge 1073741824 ]]
+          anon_git() {
+            timeout 60s env -i "PATH=$task_path" "HOME=$work/home" \
+              GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+              git -c credential.helper= -c http.extraHeader= "$@"
+          }
+          anon_git clone --quiet --depth=1 --no-checkout \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$work/source"
+          anon_git -C "$work/source" fetch --quiet --depth=1 origin "$GITHUB_SHA"
+          anon_git -C "$work/source" checkout --quiet --detach "$GITHUB_SHA"
+          [[ "$(anon_git -C "$work/source" rev-parse HEAD)" == "$GITHUB_SHA" ]]
+          fixture="$work/source/.github/checks/portable-local-paths"
+          python3 - "$fixture" <<'PY'
+          import hashlib
+          from pathlib import Path
+          import sys
+          root = Path(sys.argv[1])
+          expected = {
+              'fixture/.paas/deploy.maml': '33333a852a90757008e2b7809f4cf4156060b8b376f71f8a404f2efa5c0b5819',
+              'magento-paths/.paas/deploy.maml': '9797ee1bf7cce370a92770924f8ce140fadb45615dc5a518f788cf1638c5cf9a',
+              'magento-paths/.paas/deploy.php': '49968fa84ee6474784e9ee0dde8267a9c88f9d6ed612d0dbfbe163aebf46416b',
+              'verify.py': 'e4a05aaaa310462b6fff3fd62a12a87bd25f971ae5f35d46b765828abb9970ae',
+          }
+          paths = list(root.rglob('*'))
+          assert not any(path.is_symlink() for path in paths), 'source symlink'
+          actual = {str(path.relative_to(root)): path for path in paths if path.is_file()}
+          assert set(actual) == set(expected), sorted(actual)
+          for name, digest in expected.items():
+              assert hashlib.sha256(actual[name].read_bytes()).hexdigest() == digest, name
+          print('Verified exactly four reviewed source files at the workflow commit.')
+          PY
+          for tool in php python3 bash tar rsync; do command -v "$tool"; done
+          php --version
+          php -r 'exit(PHP_VERSION_ID >= 80300 && PHP_VERSION_ID < 90000 ? 0 : 1);'
+          curl --disable --fail --location --proto '=https' --proto-redir '=https' \
+            --connect-timeout 15 --max-time 60 \
+            --output "$work/deployer.phar" \
+            'https://github.com/deployphp/deployer/releases/download/v8.0.5/deployer.phar'
+          printf '%s  %s\n' \
+            '0026dfa73626a8ccde06222fe5fccf03e6d4a19e765914bb87d7d2cc21f3e57d' \
+            "$work/deployer.phar" | sha256sum --check -
+          version=$(env -i "PATH=$task_path" "HOME=$work/home" DO_NOT_TRACK=true \
+            DO_NOT_SHOW_BANNER=true php "$work/deployer.phar" --no-ansi --version)
+          printf '%s\n' "$version"
+          [[ "$version" =~ (^|[[:space:]])v?8\.0\.5($|[[:space:]]) ]]
+          env -i "PATH=$task_path" "HOME=$work/home" "RUNNER_TEMP=$work/tests" \
+            python3 "$fixture/verify.py" "$work/deployer.phar"
