@@ -7,7 +7,7 @@ export interface Address {
 
 export interface User {
   id: string & tags.Format<'uuid'>;
-  age: number & tags.Type<'uint32'>;
+  age: number & tags.Type<'uint32'> & tags.Maximum<4294967295>;
   email?: string & tags.Format<'email'> & tags.Examples<{ sample: 'person@example.com' }>;
   address: Address;
 }

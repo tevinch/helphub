@@ -54,19 +54,20 @@ jobs:
           anon_git -C "$work/source" checkout --quiet --detach "$GITHUB_SHA"
           [[ "$(anon_git -C "$work/source" rev-parse HEAD)" == "$GITHUB_SHA" ]]
           fixture="$work/source/.github/checks/schema-validation"
-          python3 - "$fixture" <<'PY'
+          python3 - "$fixture" "$work/core-manifest.json" <<'PY'
           import hashlib
+          import json
           from pathlib import Path
           import sys
           root = Path(sys.argv[1])
           expected = {
               'demo.ts': '8fdaee2a917bce9cf6c5532630b5cf52e7fb6da476f1afc51bbb8f60c1826780',
               'LICENSE': 'e237753559ac3cfd97258b76b76e52d2409097d6df6189eda4b5ef8eed679b45',
-              'model.ts': '05fbde98308bb57294c26d27b17cca56dd5f5f8276bcc841ce73a878fa80cf32',
+              'model.ts': '11cbc0e99674526bcf05a60b56a77c63a5539a2cab554a421c87e06ba84db96e',
               'verify.mjs': 'c0572066c290d6468da7fed7c48a01e62f94a08cd61d31bdb36a137bbe81d5c3',
               'package-lock.json': '4bb3f46dd4eb6926208c8ea7cfdb0a9dd25e929f30d086e7ac8a327785101b46',
               'package.json': 'b9fccc0914e2d7a87146dc5176c4fe4a5da5fe19abd3ac66081770ea176572e5',
-              'compile-unit.ts': 'ba356f18214ba4e67aea49d79d65e1dc7b858c7a845d5a43dd31d309524dc838',
+              'compile-unit.ts': 'ba6826e0e0b1a3db224f1f598ccd1d49978ebc50223467d7573583646f1bfdd7',
               'tsconfig.json': '0e1295170d062d96bcdab110789c15bd5cd68b9c86df3d95639a020ec9a60375',
               'monitor.py': 'e59b4d9aa48705fdb67338600291451f52085583086058a483acf41590938252',
           }
@@ -76,6 +77,9 @@ jobs:
               path = actual[name]
               assert path.is_file() and not path.is_symlink(), name
               assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, name
+          core = {name: digest for name, digest in expected.items() if name != 'monitor.py'}
+          assert len(core) == 8
+          Path(sys.argv[2]).write_text(json.dumps(core, sort_keys=True))
           print('Verified exactly nine reviewed files at the workflow commit.')
           PY
 
@@ -131,6 +135,66 @@ jobs:
           print('Stock output reached the specific missing-transform control.')
           PY
 
-          # The native baseline is intentionally still RED; retain its actual exit.
+          # The native fixture must pass before the fresh consumer runs.
           "${run_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$fixture" -- \
             npm test 2>&1 | tee "$work/npm-test.log"
+
+
+          # Copy only the eight reviewed source files, never installed/generated output.
+          consumer="$work/consumer"
+          mkdir "$consumer" "$work/consumer-npm-cache"
+          python3 - "$fixture" "$consumer" "$work/core-manifest.json" <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import shutil
+          import sys
+          source, target = map(Path, sys.argv[1:3])
+          expected = json.loads(Path(sys.argv[3]).read_text())
+          assert len(expected) == 8 and 'monitor.py' not in expected
+          assert not any(target.iterdir())
+          for name in expected:
+              assert Path(name).name == name, name
+              path = source / name
+              assert path.is_file() and not path.is_symlink(), name
+              shutil.copyfile(path, target / name)
+          actual = {path.name: path for path in target.iterdir()}
+          assert set(actual) == set(expected), sorted(actual)
+          for name, digest in expected.items():
+              assert hashlib.sha256(actual[name].read_bytes()).hexdigest() == digest, name
+          print('Fresh consumer has exactly the eight reviewed core files and matching hashes.')
+          PY
+          printf '%s\n' 'Fresh consumer uses an empty separate npm cache and reuses the fixture ttsc cache directory; this is not a cold compiler-cache check.'
+          consumer_env=("${run_env[@]}" "npm_config_cache=$work/consumer-npm-cache")
+          "${consumer_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$consumer" -- \
+            npm ci --ignore-scripts --no-audit --no-fund 2>&1 | tee "$work/consumer-npm-ci.log"
+          "${consumer_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$consumer" -- \
+            npm test 2>&1 | tee "$work/consumer-npm-test.log"
+          "${consumer_env[@]}" /usr/bin/python3 "$fixture/monitor.py" "$consumer" -- \
+            npm start 2>&1 | tee "$work/consumer-npm-start.log"
+          python3 - "$work/consumer-npm-start.log" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          text = Path(sys.argv[1]).read_text()
+          decoder = json.JSONDecoder()
+          results = []
+          offset = 0
+          while offset < len(text):
+              if text[offset] not in '{[':
+                  offset += 1
+                  continue
+              try:
+                  value, end = decoder.raw_decode(text, offset)
+              except json.JSONDecodeError:
+                  offset += 1
+                  continue
+              offset = end
+              if isinstance(value, dict) and ('valid' in value or 'errors' in value):
+                  results.append(value)
+          assert len(results) == 1, results
+          result = results[0]
+          assert set(result) == {'valid', 'errors'}, result
+          assert result['valid'] is True and result['errors'] is None, result
+          print('Actual fresh-consumer npm start JSON:', json.dumps(result, sort_keys=True))
+          PY
