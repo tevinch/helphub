@@ -1,0 +1,15 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #17212c; background: #f5f7fa; font: 16px/1.5 system-ui, sans-serif; }
+main { max-width: 760px; padding: 24px 16px; margin: auto; }
+h1 { font-size: 1.6rem; line-height: 1.2; }
+label { display: block; font-weight: 600; margin-bottom: 8px; }
+input { font: inherit; }
+#range { padding: 9px 28px 9px 9px; width: min(100%, 420px); }
+.react-datepicker-wrapper { max-width: 100%; width: 100%; }
+.react-datepicker__input-container { max-width: 100%; }
+.react-datepicker-popper { z-index: 3; }
+.react-datepicker__input-time-container { margin: 6px 10px; }
+button { font: inherit; cursor: pointer; padding: 8px 12px; }
+button:disabled { cursor: default; }
+#validation { color: #a82020; min-height: 1.5em; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; background: white; border: 1px solid #cbd3dd; }
