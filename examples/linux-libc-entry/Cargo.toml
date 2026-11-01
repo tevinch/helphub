@@ -1,0 +1,18 @@
+[package]
+name = "linux-libc-entry"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+publish = false
+
+[dependencies]
+libc = { version = "=0.2.191", default-features = false }
+
+[features]
+panic-probe = []
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

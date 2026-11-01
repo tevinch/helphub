@@ -1,0 +1,25 @@
+name: Linux libc entry example
+
+on:
+  push:
+    paths:
+      - 'examples/linux-libc-entry/**'
+      - '.github/workflows/linux-libc-entry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.99.1 --profile minimal
+      - name: Run the complete native workflow
+        working-directory: examples/linux-libc-entry
+        run: rustup run 1.99.1 python3 check.py
