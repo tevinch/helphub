@@ -52,14 +52,12 @@ Small, runnable examples for practical development questions. Each example expla
 | [Observable array moves](examples/observable-array-move) | Move an item in place while keeping object identities and one final observer notification per batch. |
 | [Portable local deployment paths](examples/portable-local-paths) | Derive absolute Deployer paths from each checkout and verify local publication after relocation. |
 | [Application font settings](examples/application-fonts) | Request Sans at 12 points with a CopperSpice stylesheet while retaining Fontconfig alias resolution. |
-
 | [Linux libc entry](examples/linux-libc-entry) | Build a GNU/Linux no_std entry point while keeping host build scripts usable. |
 | [Independent range times](examples/date-time-range) | Select a date range with separate start and end time inputs. |
 | [Legend label fonts](examples/chart-legend-fonts) | Style each Chart.js line legend label and keep visibility controls. |
 | [Fuzzy picker](examples/fuzzy-picker) | Filter terminal choices and return the selected original value. |
 | [Protobuf assertion retries](examples/proto-assertion-retry) | Reuse a protobuf assertion in normal tests and EventuallyWithT. |
 | [Continued comments](examples/continued-comments) | Transform continued comment tokens while preserving ordinary backslashes. |
-
 | [List paragraph metadata](examples/list-paragraphs) | Identify bullet and ordered paragraphs from their numbering definitions without changing a DOCX. |
 
 The examples are free to use under the MIT license.
