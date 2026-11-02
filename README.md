@@ -60,5 +60,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Continued comments](examples/continued-comments) | Transform continued comment tokens while preserving ordinary backslashes. |
 | [List paragraph metadata](examples/list-paragraphs) | Identify bullet and ordered paragraphs from their numbering definitions without changing a DOCX. |
 | [Conditional schema validation](examples/conditional-schema) | Reuse conditional Valibot schemas while retaining native errors, nested paths and existing fields. |
+| [Public confirmation page](examples/public-optin-template) | Customize Listmonk’s confirmation page while keeping the existing email template and subscription settings. |
 
-The examples are free to use under the MIT license.
+The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.

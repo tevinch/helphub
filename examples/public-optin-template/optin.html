@@ -1,0 +1,30 @@
+{{ define "optin" }}
+{{ template "header" .}}
+<section>
+    <h2>Confirm your newsletter subscription</h2>
+    <p>
+        Please confirm that you would like to receive the newsletter.
+    </p>
+
+    <form method="post" class="optin-form">
+        <ul>
+            {{ range $i, $l := .Data.Lists }}
+                <input type="hidden" name="l" value="{{ $l.UUID }}" />
+                {{ if eq $l.Type "public" }}
+                    <li>{{ $l.Name }}</li>
+                {{ else }}
+                    <li>{{ L.Ts "public.subPrivateList" }}</li>
+                {{ end }}
+            {{ end }}
+        </ul>
+        <p>
+            <input type="hidden" name="confirm" value="true" />
+            <button type="submit" class="button" id="btn-unsub">
+                {{ L.Ts "public.confirmSub" }}
+            </button>
+        </p>
+    </form>
+</section>
+
+{{ template "footer" .}}
+{{ end }}
