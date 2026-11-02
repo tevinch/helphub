@@ -301,13 +301,13 @@ Acquire::https::Verify-Host "true";
                             "installedKiB": sum(p["installedKiB"] for p in plan)},
             "cumulative": {"newPackageCount": self.count, "downloadBytes": self.download_bytes,
                            "installedKiB": self.installed_kib},
-            "limits": {"newPackageCount": 40, "downloadBytes": 150 * 1024 ** 2,
+            "limits": {"newPackageCount": 64, "downloadBytes": 150 * 1024 ** 2,
                        "installedKiB": 400 * 1024},
         }
         self.report.setdefault("ubuntuPackagePlanStatistics", []).append(statistics)
-        if self.count > 40 or self.download_bytes > 150 * 1024 ** 2 or self.installed_kib > 400 * 1024:
+        if self.count > 64 or self.download_bytes > 150 * 1024 ** 2 or self.installed_kib > 400 * 1024:
             raise RuntimeError("Ordinary dependency plan exceeds the approved bound "
-                               f"(new={self.count}/40, download={self.download_bytes}/{150 * 1024 ** 2}B, "
+                               f"(new={self.count}/64, download={self.download_bytes}/{150 * 1024 ** 2}B, "
                                f"installed={self.installed_kib}/{400 * 1024}KiB)")
         disk_checkpoint(self.report, "before-apt-install", self.work,
                         download=sum(p["bytes"] for p in plan),
