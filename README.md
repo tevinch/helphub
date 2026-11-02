@@ -1,7 +1,7 @@
 # HelpHub
 
-Small, runnable examples for practical development questions. Each example explains its scope, how to run it, and what was checked.
-| Example | Use it to |
+Runnable examples and focused guides for practical development questions. Each explains its scope and what was checked; runnable examples include setup instructions.
+| Example or guide | Use it to |
 | --- | --- |
 | [Calculator input](examples/calculator-input) | Retry invalid console input while keeping fractional arithmetic. |
 | [Custom Lisp definitions](examples/custom-lisp-tags) | Navigate custom Common Lisp and Elisp declarations from Treemacs. |
@@ -63,5 +63,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Public confirmation page](examples/public-optin-template) | Customize Listmonk’s confirmation page while keeping the existing email template and subscription settings. |
 | [Unmatched command-line arguments](examples/unmatched-arguments) | Reject extra tokens before work in a Cxxopts named-option CLI while keeping native parse errors. |
 | [Dialog form interactions](examples/modal-form) | Keep Conform blur validation, radio selection and closing focus while saving and reopening a Radix dialog. |
+| [Pricing stages](examples/pricing-stages) | Map heuristic and exact Coluna callbacks to stages and interpret the default transition rules. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
