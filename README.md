@@ -59,5 +59,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Protobuf assertion retries](examples/proto-assertion-retry) | Reuse a protobuf assertion in normal tests and EventuallyWithT. |
 | [Continued comments](examples/continued-comments) | Transform continued comment tokens while preserving ordinary backslashes. |
 | [List paragraph metadata](examples/list-paragraphs) | Identify bullet and ordered paragraphs from their numbering definitions without changing a DOCX. |
+| [Conditional schema validation](examples/conditional-schema) | Reuse conditional Valibot schemas while retaining native errors, nested paths and existing fields. |
 
 The examples are free to use under the MIT license.

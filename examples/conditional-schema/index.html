@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Conditional schema validation</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="importmap">{"imports":{"valibot":"/vendor/valibot.js"}}</script>
+</head>
+<body>
+  <main>
+    <h1>Conditional schema validation</h1>
+    <p>Use the current value of <code>a</code> to select validation rules. Submit, edit, and submit again; entered values stay in the form.</p>
+    <section aria-labelledby="original-title">
+      <h2 id="original-title">Original string-array example</h2>
+      <p><code>b</code> always contains strings. When <code>a</code> is <code>foo</code> or <code>bar</code>, it must contain at least one item.</p>
+      <form id="original-form" novalidate>
+        <label for="original-a">a</label>
+        <input id="original-a" name="a" value="foo" autocomplete="off">
+        <label for="original-b">b (JSON array of strings)</label>
+        <textarea id="original-b" name="b" rows="3" spellcheck="false">[]</textarea>
+        <p class="hint">Try <code>[]</code>, then <code>["first"]</code>. Other string values of <code>a</code> allow an empty array.</p>
+        <button type="submit">Validate</button>
+        <p role="status" aria-atomic="true" data-state="idle">Ready</p>
+        <ul data-errors aria-label="Validation errors"></ul>
+        <h3>Validated output</h3>
+        <pre data-output aria-label="Validated output"></pre>
+        <details><summary>Native issues</summary><pre data-issues></pre></details>
+      </form>
+    </section>
+    <section aria-labelledby="complex-title">
+      <h2 id="complex-title">Nested example</h2>
+      <p>This separate example keeps the existing <code>notes</code> constraint. For <code>foo</code> or <code>bar</code>, <code>b</code> also needs an entry with a nonempty name and a positive integer quantity.</p>
+      <form id="complex-form" novalidate>
+        <label for="complex-a">a</label>
+        <input id="complex-a" name="a" value="foo" autocomplete="off">
+        <label for="complex-b">b (JSON array of entries)</label>
+        <textarea id="complex-b" name="b" rows="5" spellcheck="false">[]</textarea>
+        <p class="hint">Try <code>[{"name":"","quantity":0}]</code>, then <code>[{"name":"Apple","quantity":2}]</code>. Base name/quantity types apply at every value of <code>a</code>.</p>
+        <label for="complex-notes">Notes (always required)</label>
+        <input id="complex-notes" name="notes" value="Keep this existing value.">
+        <button type="submit">Validate</button>
+        <p role="status" aria-atomic="true" data-state="idle">Ready</p>
+        <ul data-errors aria-label="Validation errors"></ul>
+        <h3>Validated output</h3>
+        <pre data-output aria-label="Validated output"></pre>
+        <details><summary>Native issues</summary><pre data-issues></pre></details>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="/app.mjs"></script>
+</body>
+</html>
