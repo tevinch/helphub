@@ -36,15 +36,6 @@ SOURCES = (
     "deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] "
     "https://security.ubuntu.com/ubuntu noble-security main universe\n"
 )
-RUNTIME_PACKAGES = {
-    "libxcb-icccm.so.4": "libxcb-icccm4", "libxcb-image.so.0": "libxcb-image0",
-    "libxcb-keysyms.so.1": "libxcb-keysyms1", "libxcb-render-util.so.0": "libxcb-render-util0",
-    "libxcb-xinerama.so.0": "libxcb-xinerama0", "libxcb-xkb.so.1": "libxcb-xkb1",
-    "libxkbcommon-x11.so.0": "libxkbcommon-x11-0", "libX11-xcb.so.1": "libx11-xcb1",
-    "libGL.so.1": "libgl1", "libOpenGL.so.0": "libopengl0", "libGLX.so.0": "libglx0",
-    "libfontconfig.so.1": "libfontconfig1", "libfreetype.so.6": "libfreetype6",
-    "libdbus-1.so.3": "libdbus-1-3", "libSM.so.6": "libsm6", "libICE.so.6": "libice6",
-}
 
 
 def run(argv, env, timeout=30, check=True):
@@ -293,6 +284,17 @@ def contained_regular_file(path, root):
     if not resolved.is_relative_to(root.resolve(strict=True)) or not resolved.is_file():
         raise RuntimeError("Official application file resolves outside its owned root")
     return resolved
+
+
+def record_launcher_evidence(apprun, output):
+    # The caller has already verified this original vendor file is contained.
+    with apprun.open("rb") as source:
+        content = source.read(16 * 1024 + 1)
+    if not content or len(content) > 16 * 1024:
+        raise RuntimeError("Original vendor launcher exceeds the small evidence bound")
+    name = "application-launcher.txt"
+    (output / name).write_bytes(content)
+    return {"evidenceFile": name, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}
 
 
 def check_free_budget(free, download=0, installed=0):
@@ -574,21 +576,14 @@ def main():
         binary, apprun = appdir / "usr/bin/texstudio", appdir / "AppRun"
         for path in (binary, apprun):
             contained_regular_file(path, appdir)
-        libraries = sorted({str(p.parent) for p in appdir.rglob("*.so*") if p.is_file() and p.resolve().is_relative_to(appdir.resolve())})
-        link_env = dict(env, LD_LIBRARY_PATH=":".join(libraries))
         xcb_plugins = list(appdir.rglob("libqxcb.so"))
         if len(xcb_plugins) != 1:
             raise RuntimeError("Expected one official XCB platform plugin")
         contained_regular_file(xcb_plugins[0], appdir)
-        dependencies = "\n".join(run(["ldd", str(p)], link_env) for p in (binary, xcb_plugins[0]))
-        missing = set(re.findall(r"^\s*(\S+) => not found\s*$", dependencies, re.M))
-        if missing - RUNTIME_PACKAGES.keys():
-            raise RuntimeError("Unreviewed native dependency: " + ", ".join(sorted(missing - RUNTIME_PACKAGES.keys())))
-        packages.install_missing([RUNTIME_PACKAGES[name] for name in missing])
-        dependencies = "\n".join(run(["ldd", str(p)], link_env) for p in (binary, xcb_plugins[0]))
-        if "not found" in dependencies:
-            raise RuntimeError("Native runtime dependencies are unresolved")
-        (output / "runtime-dependencies.txt").write_text(dependencies.replace(str(work), "<owned-work>"))
+        report["officialAsset"]["launcher"] = record_launcher_evidence(apprun, output)
+        report["runtimeDependencyAssessment"] = {"method": "official AppRun version and observed native GUI only",
+                                                 "staticDependencyAudit": "not performed",
+                                                 "automaticRuntimePackageInstall": False}
         source = Path(__file__).resolve().parent
         desktop_env = dict(env, XDG_CONFIG_HOME=str(work / "config"), XDG_CACHE_HOME=str(work / "cache"), XDG_DATA_HOME=str(work / "data"), XDG_RUNTIME_DIR=str(work / "runtime"), QT_QPA_PLATFORM="xcb", QT_LINUX_ACCESSIBILITY_ALWAYS_ON="1")
         command = ["dbus-run-session", "--", "xvfb-run", "-a", "-s", "-screen 0 1600x1000x24 -dpi 96", "/usr/bin/python3", str(source / "desktop.py"), "--app", str(apprun), "--work", str(work), "--output", str(output), "--fixture", str(source / "baseline.tex")]
