@@ -293,9 +293,22 @@ Acquire::https::Verify-Host "true";
         self.count += len(plan)
         self.download_bytes += sum(p["bytes"] for p in plan)
         self.installed_kib += sum(p["installedKiB"] for p in plan)
-        if self.count > 40 or self.download_bytes > 150 * 1024 ** 2 or self.installed_kib > 400 * 1024:
-            raise RuntimeError("Ordinary dependency plan exceeds the approved bound")
         self.report.setdefault("ubuntuPackagePlans", []).append(plan)
+        statistics = {
+            "currentPlan": {"newPackageCount": len(plan),
+                            "uniquePackageCount": len({p["name"].removesuffix(":amd64") for p in plan}),
+                            "downloadBytes": sum(p["bytes"] for p in plan),
+                            "installedKiB": sum(p["installedKiB"] for p in plan)},
+            "cumulative": {"newPackageCount": self.count, "downloadBytes": self.download_bytes,
+                           "installedKiB": self.installed_kib},
+            "limits": {"newPackageCount": 40, "downloadBytes": 150 * 1024 ** 2,
+                       "installedKiB": 400 * 1024},
+        }
+        self.report.setdefault("ubuntuPackagePlanStatistics", []).append(statistics)
+        if self.count > 40 or self.download_bytes > 150 * 1024 ** 2 or self.installed_kib > 400 * 1024:
+            raise RuntimeError("Ordinary dependency plan exceeds the approved bound "
+                               f"(new={self.count}/40, download={self.download_bytes}/{150 * 1024 ** 2}B, "
+                               f"installed={self.installed_kib}/{400 * 1024}KiB)")
         disk_checkpoint(self.report, "before-apt-install", self.work,
                         download=sum(p["bytes"] for p in plan),
                         installed=sum(p["installedKiB"] for p in plan) * 1024)

@@ -1,4 +1,4 @@
-bd0a4634ab9a29cd0445ea55436c0838879ddb59d03496c3be6be908e49a3dc2  .github/checks/selection-wrap/prepare.py
+afeda1eded746c41de762b4b775e5e47cc8c9727c308c7fcb20f9c5f63fa8cd5  .github/checks/selection-wrap/prepare.py
 c2ad2f33f386f462d4543c74532bb8fc83a0bf080655a375b682e6baccb4937a  .github/checks/selection-wrap/desktop.py
 7ab624307853523214ddc2c79e5bb9669b91ac7efb7e1b9e040aafefdbe51cea  .github/checks/selection-wrap/baseline.tex
 6f882564e2b758a386dedb47fcbb9a30c7a6eafbca48516c9f5d96dfc956deb6  .github/workflows/selection-wrap.yml
