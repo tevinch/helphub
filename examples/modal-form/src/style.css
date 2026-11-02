@@ -1,0 +1,32 @@
+:root { font-family: system-ui, sans-serif; color: #18212f; background: #f6f7fa; line-height: 1.5; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 760px; margin: 64px auto; padding: 24px; }
+button, input, textarea { font: inherit; }
+button { border: 1px solid #a6aebb; border-radius: 6px; padding: 7px 14px; background: white; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #819ff2; outline-offset: 2px; }
+button[type=submit] { background: #2548a4; color: white; border-color: #2548a4; }
+button:disabled { opacity: .6; cursor: wait; }
+.summary { border: 1px solid #d3d9e3; border-radius: 10px; background: white; padding: 20px; margin: 24px 0; }
+.summary h2 { margin-top: 0; }
+.overlay { position: fixed; inset: 0; background: #101b36a6; }
+.dialog { position: fixed; inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: min(480px, calc(100vw - 40px)); max-height: calc(100vh - 40px); overflow: auto; background: white; border-radius: 12px; padding: 28px; box-shadow: 0 18px 70px #101b3640; }
+.dialog h2 { margin: 0; }
+.dialog > p { margin: 8px 30px 24px 0; }
+.close { position: absolute; top: 10px; right: 10px; border: 0; font-size: 24px; padding: 0 8px; }
+label, #color-label { display: block; font-weight: 600; }
+input:not([hidden]), textarea { display: block; width: 100%; margin-top: 6px; padding: 8px; border: 1px solid #a6aebb; border-radius: 5px; }
+.retained-note { white-space: pre-wrap; margin: 6px 0; padding: 8px; background: #f7f8fb; border-radius: 5px; }
+[aria-invalid=true] { border-color: #b32e39; }
+/* Space covers this example's short messages at the supported widths. */
+.field-error { min-height: 3em; color: #aa2432; font-size: .875rem; line-height: 1.5; padding-top: 4px; }
+.color-options { display: flex; gap: 24px; padding-top: 9px; }
+.color-choice { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+.radio { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; border-radius: 50%; }
+.radio-dot { width: 10px; height: 10px; border-radius: 50%; background: #2548a4; }
+small { color: #586477; }
+.save-message { min-height: 3em; font-size: .875rem; color: #aa2432; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; }
+.overlay[data-state=closed], .dialog[data-state=closed] { animation: modal-out 240ms ease-in both; }
+@keyframes modal-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .overlay[data-state=closed], .dialog[data-state=closed] { animation: none; } }

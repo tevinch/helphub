@@ -62,5 +62,6 @@ Small, runnable examples for practical development questions. Each example expla
 | [Conditional schema validation](examples/conditional-schema) | Reuse conditional Valibot schemas while retaining native errors, nested paths and existing fields. |
 | [Public confirmation page](examples/public-optin-template) | Customize Listmonk’s confirmation page while keeping the existing email template and subscription settings. |
 | [Unmatched command-line arguments](examples/unmatched-arguments) | Reject extra tokens before work in a Cxxopts named-option CLI while keeping native parse errors. |
+| [Dialog form interactions](examples/modal-form) | Keep Conform blur validation, radio selection and closing focus while saving and reopening a Radix dialog. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
