@@ -15,6 +15,27 @@ from gi.repository import Atspi, GLib
 from PIL import ImageGrab, features
 
 
+STARTUP_NOTICE = (
+    "No LaTeX distribution was found on your system. As a result, the corresponding commands are not configured. "
+    "This means, that you cannot compile your documents to the desired output format (e.g. pdf).\n\n"
+    "If you intend to work with LaTeX, you'll most certainly want to install a LaTeX distribution."
+)
+
+
+def startup_notice_controls(records):
+    if not records or records[0]["role"] != "alert" or records[0]["name"] != "TeXstudio":
+        raise RuntimeError("Unexpected native startup modal")
+    labels = [row["name"] for row in records if row["role"] == "label"]
+    buttons = [i for i, row in enumerate(records) if row["role"] == "push button"]
+    checkboxes = [i for i, row in enumerate(records) if row["role"] == "check box"]
+    if (labels != [STARTUP_NOTICE] or len(buttons) != 1 or records[buttons[0]]["name"] != "OK"
+            or len(checkboxes) != 1 or records[checkboxes[0]]["name"] != "Do not warn again."
+            or records[checkboxes[0]]["checked"]):
+        raise RuntimeError("Unknown or ambiguous native startup notice; leave it untouched")
+    return {"message": labels[0], "okIndex": buttons[0], "checkboxIndex": checkboxes[0],
+            "doNotWarnAgainBefore": False}
+
+
 def run(argv, timeout=8, check=True, input_text=None):
     result = subprocess.run(argv, input=input_text, capture_output=True, text=True, timeout=timeout)
     if check and result.returncode:
@@ -189,6 +210,58 @@ def main():
         screenshot("01-editor.png")
         record_tree(root, output / "01-editor-tree.json")
         observed["initialWindowTitle"] = run(["xdotool", "getwindowname", main_id]).strip()
+
+        def visible_modals():
+            return [node for node in nodes(root) if showing(node) and
+                    (node.get_role_name() in {"alert", "dialog", "file chooser"}
+                     or node.get_state_set().contains(Atspi.StateType.MODAL))]
+
+        def startup_notice():
+            modals = visible_modals()
+            if not modals:
+                return None
+            if len(modals) != 1:
+                raise RuntimeError("Ambiguous native startup modals; leave them untouched")
+            modal = modals[0]
+            controls = [node for node in nodes(modal) if showing(node)]
+            records = [{"name": node.get_name() or "", "role": node.get_role_name(),
+                        "checked": node.get_state_set().contains(Atspi.StateType.CHECKED)}
+                       for node in controls]
+            return modal, controls, startup_notice_controls(records)
+
+        notice, notice_controls, notice_proof = wait_for(
+            startup_notice, "the observed missing-LaTeX startup notice", seconds=25)
+        screenshot("01a-startup-notice.png")
+        record_tree(notice, output / "01a-startup-notice-tree.json")
+        observed["startupNotice"] = notice_proof
+        click(notice_controls[notice_proof["okIndex"]])
+        wait_for(lambda: not showing(notice), "native startup notice dismissal")
+        if visible_modals():
+            raise RuntimeError("Unexpected native modal after startup notice dismissal")
+        observed["startupNotice"]["dismissed"] = True
+        observed["startupNotice"]["checkboxClicked"] = False
+
+        # Use the observed native View menu command, without a window-manager shortcut.
+        run(["xdotool", "windowactivate", "--sync", main_id])
+        click(wait_for(lambda: find(root, r"^View$", {"menu item"}), "native View menu"))
+        focus_command = wait_for(lambda: find(root, r"^Focus Editor$", {"menu item"}), "native Focus Editor command")
+        click(focus_command)
+
+        def focused_editor():
+            if visible_modals():
+                raise RuntimeError("Unexpected native modal before editor input")
+            if run(["xdotool", "getactivewindow"]).strip() != main_id:
+                return None
+            for node in nodes(root):
+                if (showing(node) and node.get_role_name() in {"text", "unknown"}
+                        and node.get_state_set().contains(Atspi.StateType.FOCUSED)):
+                    return {"role": node.get_role_name(), "name": node.get_name() or "",
+                            "nativeCommand": "View > Focus Editor", "activeWindow": main_id}
+            return None
+
+        observed["editorFocus"] = wait_for(focused_editor, "native editor focus after View > Focus Editor")
+        screenshot("01b-editor-ready.png")
+        record_tree(root, output / "01b-editor-ready-tree.json")
         # Seed a different clipboard value so an omitted editor copy cannot pass.
         clipboard("selection prerequisite sentinel")
         key("ctrl+Home", "ctrl+a", "ctrl+c")
