@@ -297,6 +297,82 @@ def record_launcher_evidence(apprun, output):
     return {"evidenceFile": name, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}
 
 
+def prepare_loader_bootstrap(appdir, image, offset, output, env):
+    # This task-owned bootstrap changes exactly one vendor selection line, never file modes.
+    original_sha = "85f2e5b8fed68bb23b4197fbdfd0aee57478c5e59bb3da1d43576c4fa7698242"
+    effective_sha = "46a2ddb2d23a60dcc526579760a17574e8d8b831ba425995b0ff8f7532b323e0"
+    old_line = b'LD_LINUX=$(find "$HERE" -name \'ld-*.so.*\' | head -n 1)\n'
+    new_line = b'LD_LINUX="$HERE/lib64/ld-linux-x86-64.so.2"\n'
+    specs = (("lib64/ld-linux-x86-64.so.2", 0o755),
+             ("usr/lib64/ld-linux-x86-64.so.2", 0o644))
+    apprun = appdir / "AppRun"
+    original_info = apprun.lstat()
+    if (not stat.S_ISREG(original_info.st_mode) or original_info.st_uid != os.geteuid()
+            or stat.S_IMODE(original_info.st_mode) != 0o755):
+        raise RuntimeError("Unexpected original launcher type, owner or mode")
+    contained_regular_file(apprun, appdir)
+    with apprun.open("rb") as stream:
+        original = stream.read(16 * 1024 + 1)
+    if (hashlib.sha256(original).hexdigest() != original_sha or original.count(old_line) != 1
+            or (output / "application-launcher.txt").read_bytes() != original):
+        raise RuntimeError("Original vendor launcher bytes or retained evidence mismatch")
+    found = sorted(p.relative_to(appdir).as_posix() for p in appdir.rglob("ld-*.so.*"))
+    if found != sorted(name for name, mode in specs):
+        raise RuntimeError("Unexpected bundled loader candidate set")
+    if not offset.isdigit() or not 0 < int(offset) < ASSET_SIZE:
+        raise RuntimeError("Invalid verified application filesystem offset")
+    proof = {"scope": "ephemeral native-test bootstrap; one vendor loader-selection line changed",
+             "originalSHA256": original_sha, "effectiveSHA256": effective_sha,
+             "selectedLoader": specs[0][0], "candidates": [], "fileModesChanged": False,
+             "environmentChanged": False}
+    for relative, expected_mode in specs:
+        path = appdir / relative
+        info = path.lstat()
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or stat.S_IMODE(info.st_mode) != expected_mode or info.st_size != 240936):
+            raise RuntimeError("Bundled loader type, owner, mode or size differs from the verified archive")
+        contained_regular_file(path, appdir)
+        parents = []
+        parent = path.parent
+        while True:
+            metadata = parent.lstat()
+            if not stat.S_ISDIR(metadata.st_mode) or not os.access(parent, os.X_OK):
+                raise RuntimeError("Bundled loader parent is not a searchable real directory")
+            parents.append({"path": "." if parent == appdir else parent.relative_to(appdir).as_posix(),
+                            "mode": oct(stat.S_IMODE(metadata.st_mode)), "uid": metadata.st_uid,
+                            "gid": metadata.st_gid})
+            if parent == appdir:
+                break
+            parent = parent.parent
+        with path.open("rb") as stream:
+            extracted = stream.read(240937)
+        archive = subprocess.run(["/usr/bin/timeout", "--signal=TERM", "--kill-after=3s", "15s",
+                                  "unsquashfs", "-cat", "-no-wildcards", "-no-progress", "-processors", "2",
+                                  "-o", offset, str(image), relative], env=env, capture_output=True, timeout=20)
+        if (archive.returncode or len(archive.stderr) > 8192 or len(archive.stdout) != 240936
+                or len(extracted) != 240936 or extracted != archive.stdout):
+            raise RuntimeError("Read-only archive comparison of the bundled loader failed")
+        proof["candidates"].append({"path": relative, "mode": oct(stat.S_IMODE(info.st_mode)),
+                                     "uid": info.st_uid, "gid": info.st_gid, "device": info.st_dev,
+                                     "inode": info.st_ino, "bytes": info.st_size,
+                                     "extractedSHA256": hashlib.sha256(extracted).hexdigest(),
+                                     "archiveSHA256": hashlib.sha256(archive.stdout).hexdigest(),
+                                     "executableForRunner": os.access(path, os.X_OK), "parents": parents})
+    if not proof["candidates"][0]["executableForRunner"]:
+        raise RuntimeError("The selected bundled loader is not executable for this runner")
+    effective = original.replace(old_line, new_line, 1)
+    if hashlib.sha256(effective).hexdigest() != effective_sha:
+        raise RuntimeError("The one-line effective launcher differs from the reviewed bytes")
+    (output / "loader-bootstrap-observations.json").write_text(json.dumps(proof, indent=2) + "\n")
+    (output / "effective-application-launcher.txt").write_bytes(effective)
+    apprun.write_bytes(effective)
+    after = apprun.lstat()
+    if (after.st_mode != original_info.st_mode or after.st_uid != original_info.st_uid
+            or after.st_gid != original_info.st_gid or apprun.read_bytes() != effective):
+        raise RuntimeError("Effective launcher write changed metadata or failed exact readback")
+    return proof
+
+
 def check_free_budget(free, download=0, installed=0):
     if any(not isinstance(value, int) or value < 0 for value in (free, download, installed)):
         raise RuntimeError("Unexpected disk budget input")
@@ -581,7 +657,8 @@ def main():
             raise RuntimeError("Expected one official XCB platform plugin")
         contained_regular_file(xcb_plugins[0], appdir)
         report["officialAsset"]["launcher"] = record_launcher_evidence(apprun, output)
-        report["runtimeDependencyAssessment"] = {"method": "official AppRun version and observed native GUI only",
+        report["officialAsset"]["launcherBootstrap"] = prepare_loader_bootstrap(appdir, image, offset_text, output, env)
+        report["runtimeDependencyAssessment"] = {"method": "native GUI through vendor AppRun with one recorded bundled-loader selection adaptation",
                                                  "staticDependencyAudit": "not performed",
                                                  "automaticRuntimePackageInstall": False}
         source = Path(__file__).resolve().parent
