@@ -1,0 +1,23 @@
+[package]
+name = "painter-svg"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+
+[features]
+window = ["dep:eframe"]
+
+[dependencies]
+eframe = { version = "=0.37.0", optional = true, default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
+egui = "=0.37.0"
+egui_extras = { version = "=0.37.0", default-features = false, features = ["svg"] }
+
+[[bin]]
+name = "painter-svg"
+path = "src/main.rs"
+required-features = ["window"]
+
+[profile.dev]
+debug = 0
+incremental = false

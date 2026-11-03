@@ -1,0 +1,74 @@
+{
+  "info": {
+    "name": "Local collection",
+    "description": "A local-only conversion example.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8080", "type": "string" },
+    { "key": "kind", "value": "sample", "type": "string" }
+  ],
+  "event": [
+    { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('collectionMark', 'collection-ran');"] } }
+  ],
+  "item": [
+    {
+      "name": "A folder β",
+      "description": "Nested requests with a folder hook.",
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('folderMark', 'folder-ran');"] } }
+      ],
+      "item": [
+        {
+          "name": "A nested",
+          "item": [
+            {
+              "name": "Send JSON",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "X-Collection", "value": "{{collectionMark}}" },
+                  { "key": "X-Folder", "value": "{{folderMark}}" }
+                ],
+                "body": { "mode": "raw", "raw": "{\"message\":\"hello β\"}", "options": { "raw": { "language": "json" } } },
+                "url": "{{baseUrl}}/items"
+              },
+              "event": [
+                { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('POST completed', function () { pm.expect(pm.response.code).to.equal(200); });"] } }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Read items",
+          "request": {
+            "description": "A request with a repeated query parameter and a request hook.",
+            "method": "GET",
+            "header": [
+              { "key": "X-Collection", "value": "{{collectionMark}}" },
+              { "key": "X-Folder", "value": "{{folderMark}}" },
+              { "key": "X-Request", "value": "{{requestMark}}" }
+            ],
+            "url": "{{baseUrl}}/items?kind={{kind}}&tag=a&tag=b"
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.variables.set('requestMark', 'request-ran');"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('GET completed', function () { pm.expect(pm.response.code).to.equal(200); });"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Read root",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Collection", "value": "{{collectionMark}}" }],
+        "url": "{{baseUrl}}/root"
+      },
+      "event": [
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Root completed', function () { pm.expect(pm.response.code).to.equal(200); });"] } }
+      ]
+    }
+  ]
+}

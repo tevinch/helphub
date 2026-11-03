@@ -64,5 +64,9 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Unmatched command-line arguments](examples/unmatched-arguments) | Reject extra tokens before work in a Cxxopts named-option CLI while keeping native parse errors. |
 | [Dialog form interactions](examples/modal-form) | Keep Conform blur validation, radio selection and closing focus while saving and reopening a Radix dialog. |
 | [Pricing stages](examples/pricing-stages) | Map heuristic and exact Coluna callbacks to stages and interpret the default transition rules. |
+| [Collection directory](examples/collection-directory) | Convert a Postman collection into a Bruno directory and verify it with the native CLI. |
+| [SVG with Painter](examples/painter-svg) | Load an SVG texture and draw it directly with egui Painter, including pixel scaling and caching. |
+| [Streaming JSON recipes](examples/streaming-json) | Stream HTTP and JSON Lines, filter records, inspect response branches and calculate statistics. |
+| [Polling compilation](examples/polling-compile) | Recompile Typst after content changes on filesystems with unreliable events, retaining busy-build and error recovery. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.

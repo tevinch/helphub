@@ -1,0 +1,19 @@
+[package]
+name = "polling-compile"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "Compile a Typst document after source content changes using explicit polling"
+publish = false
+
+[dependencies]
+notify = "=8.2.1"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false
