@@ -69,5 +69,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Streaming JSON recipes](examples/streaming-json) | Stream HTTP and JSON Lines, filter records, inspect response branches and calculate statistics. |
 | [Polling compilation](examples/polling-compile) | Recompile Typst after content changes on filesystems with unreliable events, retaining busy-build and error recovery. |
 | [Reusable child messages](examples/child-messages) | Keep Miso child message types independent while adapting their mail into a parent union. |
+| [MQTT create semantics](examples/mqtt-semantics) | Distinguish FROST Observation creation, MQTT acknowledgments and connected-client Keep Alive. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
