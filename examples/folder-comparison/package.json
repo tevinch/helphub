@@ -1,0 +1,7 @@
+{
+  "name": "folder-comparison-example",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": { "test": "node --test test/*.test.cjs" },
+  "engines": { "node": ">=18" }
+}
