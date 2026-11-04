@@ -1,0 +1,5 @@
+digraph "sample graph" {
+  "source one" [label="Café"];
+  "target two" [label="Result"];
+  "source one" -> "target two" [label="go"];
+}

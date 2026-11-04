@@ -1,0 +1,1 @@
+digraph sample { a [label="Kept", width="not-a-number"]; }

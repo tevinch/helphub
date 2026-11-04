@@ -1,0 +1,1 @@
+digraph sample { subgraph cluster_group { a [label="Inside"]; } b [label="Outside"]; a:p -> b [label="across"]; }

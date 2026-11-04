@@ -1,0 +1,2 @@
+digraph first { a -> b; }
+graph second { x -- y; }
