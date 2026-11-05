@@ -14,7 +14,7 @@ The values are top, left, bottom and right. This can make the padding smaller th
 
 Keep the core and SwingX addon aligned: [`com.formdev:flatlaf:3.8`](https://repo.maven.apache.org/maven2/com/formdev/flatlaf/3.8/) and [`com.formdev:flatlaf-swingx:3.8`](https://repo.maven.apache.org/maven2/com/formdev/flatlaf-swingx/3.8/), alongside your SwingX dependency. The native implementation is [FlatDatePickerUI in 3.8](https://github.com/JFormDesigner/FlatLaf/blob/3.8/flatlaf-swingx/src/main/java/com/formdev/flatlaf/swingx/ui/FlatDatePickerUI.java).
 
-A separate scripted EDT check with 3.8 and SwingX 1.6.5-1 verified smaller and larger padding, date edits and a theme UI update at 1×/2× in light/dark themes. The global padding and an unrelated picker and combo box stayed unchanged. Popup interaction and the requester's application were not tested. The source files, downloads and checks below remain the **3.7.2 fallback**.
+A separate scripted, headless EDT check with 3.8 and SwingX 1.6.5-1 verified smaller and larger padding, date edits and a theme UI update at 1×/2× in light/dark themes. The global padding and an unrelated picker and combo box stayed unchanged. Popup interaction, the requester's application and human manual validation were not performed. The source files, downloads and checks below remain the **3.7.2 fallback**.
 
 ## FlatLaf 3.7.2: add extra editor padding
 
