@@ -74,5 +74,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Folder comparison](examples/folder-comparison) | Open the current folder’s Markdown notes in right-hand Obsidian panes with QuickAdd. |
 | [Restore a cooked project](examples/source-copy) | Restore real Rust source and metadata after dependency cooking, then run the actual application. |
 | [Raw Huffman-only file round trip](examples/raw-huffman) | Finish raw DEFLATE streams, restore every byte and preserve the input file. |
+| [Contour dataset visibility](examples/contour-visibility) | Toggle individual ChartFX histogram datasets with external buttons while retaining their data. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
