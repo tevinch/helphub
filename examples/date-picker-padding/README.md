@@ -1,5 +1,23 @@
 # Add text padding to one JXDatePicker
 
+## FlatLaf 3.8: use per-picker styling
+
+[FlatLaf 3.8](https://github.com/JFormDesigner/FlatLaf/releases/tag/3.8) adds native SwingX styling. If your application uses 3.8, prefer setting the picker's layout padding directly:
+
+```java
+import com.formdev.flatlaf.FlatClientProperties;
+
+datePicker.putClientProperty(FlatClientProperties.STYLE, "padding: 0,1,0,1");
+```
+
+The values are top, left, bottom and right. This can make the padding smaller than the default; use `"padding: 6,10,6,10"` for larger padding. It applies to this picker without changing `ComboBox.padding` globally. Use it instead of the extra editor border below, which can only add padding.
+
+Keep the core and SwingX addon aligned: [`com.formdev:flatlaf:3.8`](https://repo.maven.apache.org/maven2/com/formdev/flatlaf/3.8/) and [`com.formdev:flatlaf-swingx:3.8`](https://repo.maven.apache.org/maven2/com/formdev/flatlaf-swingx/3.8/), alongside your SwingX dependency. The native implementation is [FlatDatePickerUI in 3.8](https://github.com/JFormDesigner/FlatLaf/blob/3.8/flatlaf-swingx/src/main/java/com/formdev/flatlaf/swingx/ui/FlatDatePickerUI.java).
+
+A separate scripted EDT check with 3.8 and SwingX 1.6.5-1 verified smaller and larger padding, date edits and a theme UI update at 1×/2× in light/dark themes. The global padding and an unrelated picker and combo box stayed unchanged. Popup interaction and the requester's application were not tested. The source files, downloads and checks below remain the **3.7.2 fallback**.
+
+## FlatLaf 3.7.2: add extra editor padding
+
 With FlatLaf's SwingX addon, the date editor has an empty border. Its `setMargin` value therefore does not provide the visible inset you would get from a margin-aware text-field border. The picker also has its own layout padding, read from `ComboBox.padding`.
 
 For extra padding inside one editor, set its border after creating the picker:
@@ -16,7 +34,7 @@ This adds six logical pixels above and below the text, and ten on either side. T
 
 This does not require changing `ComboBox.padding` globally. The latter also affects other controls. A native look-and-feel update can recreate the editor or replace its UI-resource border: apply the border again **after** `SwingUtilities.updateComponentTreeUI(...)`. The included demo shows that order when switching themes.
 
-## Run
+## Run the 3.7.2 fallback
 
 The example uses FlatLaf 3.7.2, its SwingX addon 3.7.2, and SwingX 1.6.5-1. These were the current Maven Central releases checked on October 29, 2026. Use a JDK with `java` and `javac`; verification used JDK 21.0.12.1.
 
@@ -39,7 +57,7 @@ On Windows, use `.;lib/*` for the runtime classpath instead of `.:lib/*`. The co
 
 The first field uses the original margin-only approach; the second uses the extra editor border. Both remain ordinary editable date pickers. Switch between light and dark to see the padding reapplied after the native UI update.
 
-## Checks
+## Checks for the 3.7.2 fallback
 
 ```sh
 java -Dflatlaf.uiScale=1 -Dcheck.scale=1 -cp '.:lib/*' PaddingCheck
