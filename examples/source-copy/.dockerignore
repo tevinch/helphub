@@ -1,0 +1,4 @@
+target
+.git
+recipe.json
+*.log
