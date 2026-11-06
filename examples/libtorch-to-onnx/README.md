@@ -68,6 +68,8 @@ program.save("model.onnx", external_data=False)
 
 The checks compare the restored model with C++ inference on six inputs that were excluded from training. They then run ONNX's checker and compare ONNX Runtime CPU inference with those C++ results at batch sizes 1, 3 and 6. The loss and initial/final tensor comparison establish that the exported state came after C++ optimization. Negative controls reject missing tensors, duplicate names, wrong shapes and unsupported dtypes; a modified output bias must fail the C++ inference comparison.
 
+Verified in [this native run](https://github.com/tevinch/helphub/actions/runs/42280202163) at source commit [`4dc05c0`](https://github.com/tevinch/helphub/commit/4dc05c0d3b895b341aed2fdb54b182aa3cca4fc9), using Ubuntu 24.04, GCC 13.3, PyTorch 2.15.0+cpu, ONNX 1.23.2 and ONNX Runtime 1.31.1. All eight checks passed; the native checkpoint restored four state tensors, and C++ training reduced loss from `2.1698896884918213` to `0.034184593707323074`. ONNX checking and CPU inference comparisons passed for all six held-out inputs at batch sizes 1, 3 and 6, within `rtol=1e-5, atol=1e-6`.
+
 ## Adapting it to your model
 
 1. Recreate the actual C++ `forward` computation in a Python `nn.Module`, including activation order, preprocessing and tensor layout. Matching layer names alone does not establish equivalent behavior.
