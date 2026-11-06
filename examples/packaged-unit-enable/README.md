@@ -78,8 +78,8 @@ at its default and does not remove existing user files for you.
 
 ## Verification scope
 
-The complete native check is pending a successful CI run. No successful
-full-sequence result is claimed yet.
+The [native check passed](https://github.com/tevinch/helphub/actions/runs/42282200094)
+at [source `05e1396`](https://github.com/tevinch/helphub/commit/05e139628ece2ef491258053044154f57b03f39c).
 
 The check uses Hjem `8408642`, Nixpkgs revision
 `c56a87d8e41ce69bd2af57eb35dcc117a9dfca33` from the stable `nixos-26.05`
@@ -91,12 +91,14 @@ writes a marker. **It does not contain or run Syncthing.** The check evaluates
 the real Hjem NixOS module, builds its actual activation and state-update
 scripts, then runs them for a new disposable user. A fresh real systemd user
 manager must start that service without an explicit service-start command.
+The run preserved the user's home mode `750` and unrelated content. It read
+files as their owner and used the evaluated job scripts and executable path,
+including `nix-store`; the state-update garbage-collection roots were required.
 
-It checks package version 1, a changed package version 2, repeated activation,
-unchanged unrelated content, and a package-only control with the wants line
-omitted. The control must retain the imported unit while leaving it inactive
-and producing no marker. A change that omits the recipe cannot pass the positive
-startup checks.
+All four stages passed: package version 1 startup, a changed package version 2,
+repeated activation, and a package-only control with the wants line omitted.
+The control retained the imported unit while leaving it inactive and producing
+no marker. A change that omits the recipe cannot pass the positive startup checks.
 
 Run only in an ephemeral Linux environment with Nix, systemd and passwordless
 sudo, such as the supplied CI workflow:
