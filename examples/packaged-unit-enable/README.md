@@ -78,8 +78,8 @@ at its default and does not remove existing user files for you.
 
 ## Verification scope
 
-The supplied native check is pending its first CI execution. No successful
-native run is claimed yet.
+The complete native check is pending a successful CI run. No successful
+full-sequence result is claimed yet.
 
 The check uses Hjem `8408642`, Nixpkgs revision
 `c56a87d8e41ce69bd2af57eb35dcc117a9dfca33` from the stable `nixos-26.05`

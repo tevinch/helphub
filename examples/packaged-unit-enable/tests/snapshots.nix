@@ -35,6 +35,10 @@
         hjem.nixosModules.default
         {
           system.stateVersion = "26.05";
+          # State updates register GC roots through nix-store. Make this
+          # dependency explicit in the evaluated test services' real PATH.
+          systemd.services."hjem-activate@".path = [pkgs.nix];
+          systemd.services."hjem-update-state@".path = [pkgs.nix];
           users.users.unitcheck = {
             isNormalUser = true;
             home = "/var/tmp/unitcheck";
@@ -47,11 +51,23 @@
       ];
     };
     services = evaluated.config.systemd.services;
+    serviceEntry = name: let
+      service = services.${name};
+      # NixOS builds the actual strict-shell-checked job script and appends
+      # scriptArgs to ExecStart. Supply the instance argument ourselves here.
+      command = pkgs.lib.removeSuffix " %i" service.serviceConfig.ExecStart;
+    in
+      assert service.scriptArgs == "%i";
+      assert pkgs.lib.hasSuffix " %i" service.serviceConfig.ExecStart;
+      pkgs.writeShellScript "run-${name}-${version}" ''
+        export PATH=${pkgs.lib.escapeShellArg service.environment.PATH}
+        exec ${command} "$@"
+      '';
   in {
-    # Use the actual evaluated module scripts, including its real generated
-    # manifest. Do not reconstruct Hjem's manifest or linking implementation.
-    activate = pkgs.writeShellScript "activate-packaged-unit-${version}" services."hjem-activate@".script;
-    updateState = pkgs.writeShellScript "record-packaged-unit-${version}" services."hjem-update-state@".script;
+    # Use the actual evaluated module job scripts and service PATH, including
+    # their real generated manifest. Do not reconstruct the manifest/linker.
+    activate = serviceEntry "hjem-activate@";
+    updateState = serviceEntry "hjem-update-state@";
     originalUnit = "${package}/lib/systemd/user/syncthing.service";
   };
 in {
