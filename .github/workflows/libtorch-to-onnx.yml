@@ -1,0 +1,39 @@
+name: LibTorch weights to ONNX
+on:
+  push:
+    paths:
+      - 'examples/libtorch-to-onnx/**'
+      - '.github/workflows/libtorch-to-onnx.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  example:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CXX: g++-13
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    defaults:
+      run:
+        working-directory: examples/libtorch-to-onnx
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Install CPU packages
+        run: |
+          python3.12 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          .venv/bin/python -m pip install -r requirements.txt
+      - name: Compile and train in C++
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$(.venv/bin/python -c 'import torch; print(torch.utils.cmake_prefix_path)')"
+          cmake --build build --parallel 1
+          ./build/train weights.json checkpoint.pt
+      - name: Check strict mapping and export inference
+        run: |
+          .venv/bin/python -m unittest discover -v
+          .venv/bin/python bridge.py weights.json model.onnx

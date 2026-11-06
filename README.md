@@ -75,5 +75,8 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Restore a cooked project](examples/source-copy) | Restore real Rust source and metadata after dependency cooking, then run the actual application. |
 | [Raw Huffman-only file round trip](examples/raw-huffman) | Finish raw DEFLATE streams, restore every byte and preserve the input file. |
 | [Contour dataset visibility](examples/contour-visibility) | Toggle individual ChartFX histogram datasets with external buttons while retaining their data. |
+| [Sheet ownership](examples/sheet-ownership) | Choose a caller-owned native sheet or a route, with exact version and Android capability boundaries. |
+| [Packaged user-unit enable link](examples/packaged-unit-enable) | Enable an imported Hjem service declaratively while tracking package updates. |
+| [LibTorch weights to ONNX](examples/libtorch-to-onnx) | Preserve C++-trained weights in an equivalent Python graph and check the exported inference results. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.

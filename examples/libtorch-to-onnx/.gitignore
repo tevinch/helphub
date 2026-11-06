@@ -1,0 +1,8 @@
+/build/
+/.venv/
+/__pycache__/
+/*.pt
+/*.onnx
+/*.onnx.data
+/weights.json
+/*.verification.json
