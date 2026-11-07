@@ -80,5 +80,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [LibTorch weights to ONNX](examples/libtorch-to-onnx) | Preserve C++-trained weights in an equivalent Python graph and check the exported inference results. |
 | [Cursorless text input](examples/cursorless-input) | Hide one TextBox cursor while retaining keyboard editing, focus and submission. |
 | [Queue counts](examples/queue-counts) | Query explicit Mission Control states and count retained Solid Queue records. |
+| [Full-text feed labels](examples/full-text-feeds) | Prioritize selected full-text feeds across folders while retaining other labels and scoring. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
