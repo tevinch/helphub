@@ -55,8 +55,24 @@ function Wait-Project([int]$Port, [string]$Version, [string]$Marker, [string]$Me
         }
     } while ($true)
 }
+function Test-OwnedNginxPidText([string]$Text, [int]$OwnedId) {
+    $candidate = 0
+    return ([int]::TryParse($Text, [ref]$candidate) -and $candidate -gt 0 -and $candidate -eq $OwnedId)
+}
 
 try {
+    foreach ($case in @(
+        @{ Name='empty'; Text=''; Expected=$false },
+        @{ Name='noninteger'; Text='not a PID'; Expected=$false },
+        @{ Name='zero'; Text='0'; Expected=$false },
+        @{ Name='different process'; Text='12346'; Expected=$false },
+        @{ Name='owned process'; Text="12345`r`n"; Expected=$true }
+    )) {
+        if ((Test-OwnedNginxPidText $case.Text 12345) -ne $case.Expected) {
+            throw "nginx PID readiness control failed: $($case.Name)."
+        }
+    }
+    Write-Host 'PASS: nginx PID readiness rejects empty, noninteger, zero and different IDs; accepts the owned ID.'
     foreach ($directory in @('conf', 'logs', 'temp', 'project84', 'project85')) {
         [void](New-Item -ItemType Directory -Path (Join-Path $root $directory) -Force)
     }
@@ -125,14 +141,26 @@ http {
     if ($LASTEXITCODE -ne 0) { throw 'nginx executable check failed.' }
     & $exe -p $prefix -c conf/nginx.conf -t
     if ($LASTEXITCODE -ne 0) { throw 'nginx configuration validation failed.' }
+    $pidFile = Join-Path $root 'logs/nginx.pid'
+    $testPidExists = Test-Path $pidFile
+    $testPidText = if ($testPidExists) { [string](Get-Content $pidFile -Raw) } else { '' }
+    Write-Host ('nginx PID file after -t, before launch: ' + (ConvertTo-Json -InputObject @{
+        exists=$testPidExists; length=$testPidText.Length; raw=$testPidText
+    } -Compress))
     $launch = Start-Program $exe @('-p', $prefix, '-c', 'conf/nginx.conf') $root
+    Write-Host "nginx launched owned process $($launch.Id)."
     $deadline = [DateTime]::UtcNow.AddSeconds(20)
-    while (-not (Test-Path (Join-Path $root 'logs/nginx.pid'))) {
-        if ([DateTime]::UtcNow -gt $deadline) { throw 'nginx did not create its test PID file.' }
+    while ($true) {
+        if ($launch.HasExited) { throw "Owned nginx process $($launch.Id) exited before PID readiness with code $($launch.ExitCode)." }
+        $pidText = if (Test-Path $pidFile) { [string](Get-Content $pidFile -Raw) } else { '' }
+        if (Test-OwnedNginxPidText $pidText $launch.Id) { break }
+        if ([DateTime]::UtcNow -ge $deadline) {
+            $lastText = ConvertTo-Json -InputObject $pidText -Compress
+            throw "nginx did not publish owned PID $($launch.Id); last PID-file contents: $lastText"
+        }
         Start-Sleep -Milliseconds 100
     }
-    $masterId = [int](Get-Content (Join-Path $root 'logs/nginx.pid'))
-    if ($masterId -ne $launch.Id) { throw 'The nginx PID differs from the owned process.' }
+    Write-Host "nginx master ready: owned process $($launch.Id), PID file $($pidText.Trim())."
     $nginxMaster = $launch
     Wait-Project 18084 '8.4.' 'project84' '128M' (Join-Path $root 'php84.ini')
     Wait-Project 18085 '8.5.' 'project85' '192M' (Join-Path $root 'php85.ini')
