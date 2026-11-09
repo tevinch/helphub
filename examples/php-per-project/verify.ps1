@@ -57,7 +57,7 @@ function Wait-Project([int]$Port, [string]$Version, [string]$Marker, [string]$Me
 }
 
 try {
-    foreach ($directory in @('conf', 'logs', 'project84', 'project85')) {
+    foreach ($directory in @('conf', 'logs', 'temp', 'project84', 'project85')) {
         [void](New-Item -ItemType Directory -Path (Join-Path $root $directory) -Force)
     }
     foreach ($port in @(9084, 9085, 18084, 18085)) {
