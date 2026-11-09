@@ -1,0 +1,21 @@
+name: Concurrent PHP projects on Windows
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/php-per-project/**'
+      - '.github/workflows/php-per-project.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Verify concurrent versions through native nginx
+        shell: pwsh
+        run: ./examples/php-per-project/ci.ps1

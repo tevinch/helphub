@@ -84,4 +84,6 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | [Typst remote fonts](examples/typst-remote-font) | Load a custom browser font before compilation and render edits with matching modules. |
 
+| [Per-project PHP versions](examples/php-per-project) | Run separate Windows FastCGI versions and route each nginx project to its own backend. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
