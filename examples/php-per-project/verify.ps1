@@ -131,7 +131,9 @@ http {
         if ([DateTime]::UtcNow -gt $deadline) { throw 'nginx did not create its test PID file.' }
         Start-Sleep -Milliseconds 100
     }
-    $nginxMaster = Get-Process -Id ([int](Get-Content (Join-Path $root 'logs/nginx.pid')))
+    $masterId = [int](Get-Content (Join-Path $root 'logs/nginx.pid'))
+    if ($masterId -ne $launch.Id) { throw 'The nginx PID differs from the owned process.' }
+    $nginxMaster = $launch
     Wait-Project 18084 '8.4.' 'project84' '128M' (Join-Path $root 'php84.ini')
     Wait-Project 18085 '8.5.' 'project85' '192M' (Join-Path $root 'php85.ini')
     foreach ($round in 1..3) {
@@ -159,9 +161,13 @@ http {
         if (-not $nginxMaster.WaitForExit(5000)) { $nginxMaster.Kill($true) }
     }
     foreach ($child in $children) {
-        if (-not $child.HasExited) { $child.Kill($true); $child.WaitForExit(5000) | Out-Null }
+        if (-not $child.HasExited) {
+            $child.Kill($true)
+            if (-not $child.WaitForExit(5000)) { throw "Owned process $($child.Id) did not exit." }
+        }
         $child.Dispose()
     }
     if (Test-Path (Join-Path $root 'logs/error.log')) { Get-Content (Join-Path $root 'logs/error.log') | Write-Host }
+    Write-Host 'Owned process cleanup completed.'
     Write-Host "Disposable check files: $root"
 }
