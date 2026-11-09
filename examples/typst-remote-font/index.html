@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typst remote font example</title>
+<style>
+body{font:16px system-ui;max-width:900px;margin:32px auto;padding:0 20px;background:#f8fafc;color:#162235}
+textarea{box-sizing:border-box;width:100%;min-height:180px;font:15px monospace;padding:12px}
+button{padding:9px 22px;margin-top:12px}#status{min-height:24px}#preview{background:white;border:1px solid #ccd5e0;overflow:auto}#preview svg{max-width:100%;height:auto}details{margin:20px 0}pre{white-space:pre-wrap}
+</style>
+<script type="importmap">
+{"imports":{
+ "@myriaddreamin/typst.ts":"./node_modules/@myriaddreamin/typst.ts/dist/esm/index.mjs",
+ "@myriaddreamin/typst.ts/compiler":"./node_modules/@myriaddreamin/typst.ts/dist/esm/compiler.mjs",
+ "@myriaddreamin/typst.ts/renderer":"./node_modules/@myriaddreamin/typst.ts/dist/esm/renderer.mjs",
+ "@myriaddreamin/typst.ts/contrib/global-compiler":"./node_modules/@myriaddreamin/typst.ts/dist/esm/contrib/global-compiler.mjs",
+ "@myriaddreamin/typst.ts/contrib/global-renderer":"./node_modules/@myriaddreamin/typst.ts/dist/esm/contrib/global-renderer.mjs",
+ "@myriaddreamin/typst-ts-web-compiler":"./node_modules/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler.mjs",
+ "@myriaddreamin/typst-ts-renderer":"./node_modules/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer.mjs"
+}}
+</script>
+<h1>Load a remote font in Typst</h1>
+<p>The font is loaded into the compiler before the first document is compiled.</p>
+<label for="source">Document</label>
+<textarea id="source" spellcheck="false">#set page(width: 16cm, height: auto, margin: 1cm)
+#set text(font: "Noto Sans SC", size: 18pt)
+Hello, Typst!</textarea>
+<button type="button" id="render">Render</button>
+<p id="status" role="status">Loading…</p>
+<div id="preview" aria-label="Rendered document"></div>
+<details><summary>Compiler diagnostics</summary><pre id="diagnostics">[]</pre></details>
+<script type="module" src="./example.mjs"></script>
+</html>

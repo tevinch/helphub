@@ -82,4 +82,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Queue counts](examples/queue-counts) | Query explicit Mission Control states and count retained Solid Queue records. |
 | [Full-text feed labels](examples/full-text-feeds) | Prioritize selected full-text feeds across folders while retaining other labels and scoring. |
 
+| [Typst remote fonts](examples/typst-remote-font) | Load a custom browser font before compilation and render edits with matching modules. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
