@@ -85,5 +85,8 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Typst remote fonts](examples/typst-remote-font) | Load a custom browser font before compilation and render edits with matching modules. |
 | [Per-project PHP versions](examples/php-per-project) | Run separate Windows FastCGI versions and route each nginx project to its own backend. |
 | [Freeform coordinates](examples/freeform-coordinates) | Draw an editable polygon at exact fractional-inch positions with python-pptx. |
+| [Trilium summary backgrounds](examples/trilium-summary-css) | Color grid summaries while preserving note titles, content and navigation. |
+| [NumPy tuple returns](examples/numpy-tuple-returns) | Document four returned values and render them through Sphinx-AutoAPI. |
+| [MySQL client PATH](examples/mysql-client-path) | Find the installed Homebrew client and make it available in zsh. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.

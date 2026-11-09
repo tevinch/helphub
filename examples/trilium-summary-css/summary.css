@@ -1,0 +1,4 @@
+/* Summary containers in the card/grid Note List. Titles are separate siblings. */
+.note-list.grid-view .note-book-card > .note-book-content {
+    background-color: #fff3a6;
+}

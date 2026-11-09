@@ -1,0 +1,9 @@
+project = "Tuple return documentation"
+release = "1"
+extensions = ["autoapi.extension", "sphinx.ext.napoleon"]
+autoapi_dirs = [".."]
+autoapi_file_patterns = ["example.py"]
+autoapi_keep_files = True
+napoleon_numpy_docstring = True
+napoleon_google_docstring = False
+html_theme = "alabaster"

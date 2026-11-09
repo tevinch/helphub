@@ -1,0 +1,8 @@
+[tool.pydoclint]
+style = "numpy"
+skip-checking-short-docstrings = false
+skip-checking-private-functions = true
+allow-init-docstring = true
+require-inline-class-var-docs = true
+check-style-mismatch = true
+check-return-types = true

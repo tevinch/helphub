@@ -1,0 +1,35 @@
+name: MySQL client PATH
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/mysql-client-path/**'
+      - '.github/workflows/mysql-client-path.yml'
+permissions:
+  contents: read
+jobs:
+  mysql-path:
+    runs-on: macos-15
+    timeout-minutes: 15
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_ANALYTICS: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Check native runner
+        shell: bash
+        run: |
+          test "$(uname -m)" = arm64
+          test "$(brew --prefix)" = /opt/homebrew
+          sw_vers
+          brew --version
+      - name: Install the client on this disposable runner
+        shell: bash
+        run: brew install mysql-client
+      - name: Check the client and fresh shells
+        shell: bash
+        run: bash examples/mysql-client-path/verify.sh
