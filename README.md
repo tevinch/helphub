@@ -88,5 +88,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Trilium summary backgrounds](examples/trilium-summary-css) | Color grid summaries while preserving note titles, content and navigation. |
 | [NumPy tuple returns](examples/numpy-tuple-returns) | Document four returned values and render them through Sphinx-AutoAPI. |
 | [MySQL client PATH](examples/mysql-client-path) | Find the installed Homebrew client and make it available in zsh. |
+| [Manual LSP completion](examples/manual-lsp-completion) | Request and accept Neovim completions with the current native API. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
