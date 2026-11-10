@@ -1,0 +1,11 @@
+{
+  "id": "date-ordered-navigation",
+  "name": "Date-ordered navigation",
+  "version": "1.0.0",
+  "description": "Show notes newest first in selected folders while keeping the normal order elsewhere.",
+  "author": "Tevinch",
+  "noteSettings": ["dgShowFileTree"],
+  "regions": {
+    "navigation": "filetree.njk"
+  }
+}
