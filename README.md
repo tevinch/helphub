@@ -93,5 +93,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Greek completion candidates](examples/greek-completion-candidates) | Keep accented Greek items selectable while narrowing a cached native Neovim completion list. |
 | [Compact CSV exports](examples/compact-csv-exports) | Choose compact per-export layouts while retaining sparse read indices. |
 | [Solid input drafts](examples/solid-input-drafts) | Preserve a number input draft while toggling disabled state in Solid 2.0 RCs. |
+| [Compact Helix diagnostics](examples/helix-compact-diagnostics) | Uncover code beneath a legacy diagnostic box while retaining active diagnostics. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.

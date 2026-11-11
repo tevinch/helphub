@@ -1,0 +1,7 @@
+# Merge these entries into your existing mode tables; do not replace your config.
+# Choose a key you have not already assigned. F8 is only an example.
+# Requires end-of-line-diagnostics, inline-diagnostics.cursor-line and
+# inline-diagnostics.other-lines all to be "disable" before the first toggle.
+
+[keys.normal]
+F8 = ":toggle end-of-line-diagnostics disable hint"
