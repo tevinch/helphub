@@ -1,0 +1,23 @@
+{
+  "name": "solid-input-draft-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "tsc --noEmit",
+    "start": "node server.mjs",
+    "test": "npm run build && node --test tests/browser.test.mjs"
+  },
+  "dependencies": { "solid-js": "2.0.0-rc.19", "@solidjs/web": "2.0.0-rc.19" },
+  "devDependencies": {
+    "@babel/core": "7.29.0",
+    "@babel/preset-typescript": "7.28.5",
+    "@solidjs/babel-plugin": "2.0.0-rc.19",
+    "esbuild": "0.28.2",
+    "playwright": "1.65.0",
+    "typescript": "7.0.2"
+  }
+}
