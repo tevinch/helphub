@@ -91,5 +91,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Manual LSP completion](examples/manual-lsp-completion) | Request and accept Neovim completions with the current native API. |
 | [Garden folder dates](examples/garden-date-navigation) | Sort selected navigation folders by creation date while retaining note objects and links. |
 | [Greek completion candidates](examples/greek-completion-candidates) | Keep accented Greek items selectable while narrowing a cached native Neovim completion list. |
+| [Compact CSV exports](examples/compact-csv-exports) | Choose compact per-export layouts while retaining sparse read indices. |
 
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
