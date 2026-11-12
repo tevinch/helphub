@@ -99,4 +99,6 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | [Rough SVG with React 19.0](examples/rough-svg-react19) | Render and update rough SVG shapes with a matching React and reconciler version pair. |
 
+| [Shared Fastfetch row](examples/fastfetch-shared-row) | Combine memory and swap summaries while preserving the following display rows. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.

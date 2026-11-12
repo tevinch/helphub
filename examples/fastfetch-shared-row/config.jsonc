@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fastfetch-cli/fastfetch/2.71.0/doc/json_schema.json",
+  "logo": null,
+  "modules": [
+    {
+      "type": "command",
+      "key": " ",
+      "text": "fastfetch -c none --logo none --pipe true -s Memory:Swap | paste -s -d ' ' -",
+      "useOutput": "stdout",
+      "splitLines": false
+    },
+    {
+      "type": "custom",
+      "key": "Next",
+      "format": "The next module stays on its own row"
+    }
+  ]
+}
