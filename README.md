@@ -97,4 +97,6 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | [Literal CLI arguments](examples/literal-cli-arguments) | Keep version-like text intact while preserving numeric parsing for other Python Fire parameters. |
 
+| [Rough SVG with React 19.0](examples/rough-svg-react19) | Render and update rough SVG shapes with a matching React and reconciler version pair. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
