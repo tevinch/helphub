@@ -95,4 +95,6 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Solid input drafts](examples/solid-input-drafts) | Preserve a number input draft while toggling disabled state in Solid 2.0 RCs. |
 | [Compact Helix diagnostics](examples/helix-compact-diagnostics) | Uncover code beneath a legacy diagnostic box while retaining active diagnostics. |
 
+| [Literal CLI arguments](examples/literal-cli-arguments) | Keep version-like text intact while preserving numeric parsing for other Python Fire parameters. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
