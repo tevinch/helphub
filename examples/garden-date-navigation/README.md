@@ -1,5 +1,7 @@
 # Sort selected garden folders by creation date
 
+**Adoption update, November 16, 2026:** The requester [reported that their full garden build was terminated with exit 143/SIGTERM](https://github.com/oleeskild/obsidian-digital-garden/issues/855#issuecomment-6835701186). The cause has not been established. The small fixture checks below do not demonstrate acceptable performance for that garden, and this recipe has not restored the requester’s full build workflow. A comparison with their original template, note/folder counts and the earlier build log is needed before recommending a change.
+
 Keep the normal file-tree order everywhere except the folders you choose. Inside those folders, notes appear newest first while their links, titles, icons and child objects remain intact.
 
 This uses Nunjucks' built-in `groupby` and `sort` filters, plus Digital Garden's existing `dateToZulu` filter. It requires no new JavaScript filter, build hook or change to the managed site's core files.

@@ -8,6 +8,8 @@ The workaround is a separate Microsoft installation inside the activated Conda e
 
 Checked on macOS 14 / Apple Silicon, with Conda 23.1.0, SDK 10.0.403, runtimes 10.0.14 and 8.0.33, Microsoft.NET.Test.Sdk 18.11.0, and MSTest 4.5.2. The SDK and runtime versions come from Microsoft's [10.0 release metadata](https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json) and [8.0 release metadata](https://builds.dotnet.microsoft.com/dotnet/release-metadata/8.0/releases.json). They were the stable versions checked on October 28, 2026.
 
+**Lifecycle update, November 16, 2026:** .NET 8 reached end of support on November 10, 2026. The older versions below record the October test; they are not current version recommendations. Consult Microsoft’s [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core) before choosing a runtime for a new project.
+
 The commands below are for macOS arm64 and Bash. Other operating systems and architectures need their matching Microsoft downloads and environment-variable spelling; they were not checked here. This is a small test project, not a change to the feedstock's package naming.
 
 ## Create a dedicated environment and install the new SDK
@@ -101,7 +103,11 @@ The other test exercises a small library that counts nonempty lines. This verifi
 
 Use your project's target framework, supported runtime version, and test dependencies. Keep the newer SDK and the required runtime in the **same** sidecar root, invoke that root's host, and set the applicable `DOTNET_ROOT_<ARCH>` for child apphosts. Do not copy these files into a Conda-managed installation or rely on a different `dotnet` earlier in `PATH`. For ASP.NET Core tests, an appropriate `aspnetcore` runtime may also be needed; this example uses only `Microsoft.NETCore.App`.
 
-Conda will not update this sidecar. Maintain its security updates separately and update the version pins and checksums together when changing this example. Microsoft's [version selection guide](https://learn.microsoft.com/en-us/dotnet/core/versions/selection), [environment variable reference](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables#dotnet_root-dotnet_rootx86-dotnet_root_x86-dotnet_root_x64), and [installer options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-install-script) explain the relevant behavior.
+Conda will not update this sidecar. Its files are not captured by `conda env export` or `conda list --explicit`; retain the installation commands and checksums separately when recreating the environment. Maintain its security updates separately and update the version pins and checksums together when changing this example. Microsoft's [version selection guide](https://learn.microsoft.com/en-us/dotnet/core/versions/selection), [environment variable reference](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables#dotnet_root-dotnet_rootx86-dotnet_root_x86-dotnet_root_x64), and [installer options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-install-script) explain the relevant behavior.
+
+## When running on a newer runtime is acceptable
+
+If you only need an older-target assembly to run, major runtime roll-forward may avoid a second runtime. It does not validate behavior on the older runtime. This example deliberately disables roll-forward and asserts runtime major 8, so it requires that older runtime. See the [maintainer’s discussion of the distinction](https://github.com/conda-forge/dotnet-feedstock/issues/131) and Microsoft’s [roll-forward guidance](https://learn.microsoft.com/en-us/dotnet/core/versions/selection#control-roll-forward-behavior). No roll-forward run is claimed by this example.
 
 ## Optional coffee
 

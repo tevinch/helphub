@@ -1,5 +1,9 @@
 # Put Fastfetch memory and swap on one row
 
+**Update, November 16, 2026:** This extra-process recipe was not suitable for the original request. The requester rejected the extra-process overhead, and the maintainer advised against this approach. For an ordinary configuration, follow the maintainer’s [native Lua cross-module data sharing answer](https://github.com/fastfetch-cli/fastfetch/discussions/2715#discussioncomment-19568971) and the [official Lua format guide](https://github.com/fastfetch-cli/fastfetch/wiki/Format-String-Guide#lua-scripts). The recipe below remains a limited POSIX `Command` example, not the recommended solution for that request.
+
+Lua needs support compiled into the Fastfetch binary as well as a compatible installed Lua library. Check `fastfetch --list-features` for `Lua 5.x`; installing a Lua package alone does not add a missing compiled feature. The requester reported that feature was absent. Their operating system and package source remain unknown, and the thread does not yet confirm a working Lua configuration.
+
 Use Fastfetch's native `Command` module to join the output of its Memory and Swap modules. The rest of the outer display, including its logo and following modules, keeps its normal layout.
 
 This recipe uses a POSIX shell and `paste`. It was checked with Fastfetch **2.71.0 on macOS arm64**. The original question did not specify an operating system; this is not a Windows shell recipe, and Linux has not been tested here.
