@@ -1,0 +1,25 @@
+CONSOLE session=1
+>> puts ["VALUE", app.value].join(":")
+VALUE:2
+=> nil
+>> raise "incorrect doubled value" unless app.doubled == 4; puts "CHECK:" + (2 + 2).to_s
+CHECK:4
+=> nil
+>> puts ["ARGS", ARGV.inspect].join(":")
+ARGS:["console", "--twice", "--keep", "demo"]
+=> nil
+>> app.add(3); local_note = "edited"; puts ["MUTATED", app.value, local_note].join(":")
+MUTATED:5:edited
+=> nil
+>> exit
+RESUMED session=1 value=5 note=edited argv=["console", "--twice", "--keep", "demo"]
+CONSOLE session=2
+>> raise "incorrect second value" unless app.doubled == 10; puts ["REENTRY", app.value, local_note].join(":")
+REENTRY:5:edited
+=> nil
+>> app.add(-1); local_note = "again"; puts ["MUTATED", app.value, local_note].join(":")
+MUTATED:4:again
+=> nil
+>> exit
+RESUMED session=2 value=4 note=again argv=["console", "--twice", "--keep", "demo"]
+COMPLETE value=4 note=again argv=["console", "--twice", "--keep", "demo"]

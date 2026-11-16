@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Ruby app console](examples/app-console-context) | Inspect and change existing Ruby app state in IRB, then resume the caller. |
 | [Browser chart drag](examples/browser-chart-drag) | Test complete Recharts mouse drags and verify the selected range in a real browser. |
 | [Calculator input](examples/calculator-input) | Retry invalid console input while keeping fractional arithmetic. |
 | [Custom Lisp definitions](examples/custom-lisp-tags) | Navigate custom Common Lisp and Elisp declarations from Treemacs. |
