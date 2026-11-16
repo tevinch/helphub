@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Browser chart drag](examples/browser-chart-drag) | Test complete Recharts mouse drags and verify the selected range in a real browser. |
 | [Calculator input](examples/calculator-input) | Retry invalid console input while keeping fractional arithmetic. |
 | [Custom Lisp definitions](examples/custom-lisp-tags) | Navigate custom Common Lisp and Elisp declarations from Treemacs. |
 | [FeatherScroll navigation](examples/feather-snap-scroll) | Scroll to sections and settle gradually after wheel input. |
