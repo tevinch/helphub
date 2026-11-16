@@ -1,0 +1,165 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "Sum of Cost by Product Family",
+  "width": 600,
+  "height": 400,
+  "data": [
+    {
+      "name": "source_0",
+      "values": [
+        {
+          "PRODUCT_FAMILY": "Audio",
+          "Cost": 7765
+        },
+        {
+          "PRODUCT_FAMILY": "Camera Accessories",
+          "Cost": 4289
+        },
+        {
+          "PRODUCT_FAMILY": "Cameras & Camcorders",
+          "Cost": 3486
+        },
+        {
+          "PRODUCT_FAMILY": "Computers & Tablets",
+          "Cost": 3403
+        },
+        {
+          "PRODUCT_FAMILY": "Energy Star TV",
+          "Cost": 877
+        },
+        {
+          "PRODUCT_FAMILY": "High Definition TV",
+          "Cost": 7439
+        },
+        {
+          "PRODUCT_FAMILY": "Hobbies & Creative Arts",
+          "Cost": 1568
+        },
+        {
+          "PRODUCT_FAMILY": "MP3 Player",
+          "Cost": 2051
+        },
+        {
+          "PRODUCT_FAMILY": "Party & Celebration",
+          "Cost": 672
+        },
+        {
+          "PRODUCT_FAMILY": "Printing",
+          "Cost": 1051
+        },
+        {
+          "PRODUCT_FAMILY": "Refurbished MP3",
+          "Cost": 4463
+        },
+        {
+          "PRODUCT_FAMILY": "Smart Phones",
+          "Cost": 2915
+        },
+        {
+          "PRODUCT_FAMILY": "TV & Home Theater",
+          "Cost": 7663
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "point",
+      "domain": {
+        "data": "source_0",
+        "field": "PRODUCT_FAMILY"
+      },
+      "range": "width"
+    },
+    {
+      "name": "yscale",
+      "type": "linear",
+      "domain": {
+        "data": "source_0",
+        "field": "Cost"
+      },
+      "range": "height",
+      "nice": true,
+      "zero": true
+    }
+  ],
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "labelAngle": -90,
+      "labelOverlap": true,
+      "labelAlign": "right",
+      "labelBaseline": "middle"
+    },
+    {
+      "orient": "left",
+      "scale": "yscale"
+    }
+  ],
+  "marks": [
+    {
+      "name": "line-01",
+      "type": "line",
+      "from": {
+        "data": "source_0"
+      },
+      "encode": {
+        "enter": {
+          "x": {
+            "scale": "xscale",
+            "field": "PRODUCT_FAMILY"
+          },
+          "y": {
+            "scale": "yscale",
+            "field": "Cost"
+          },
+          "stroke": {
+            "value": "steelblue"
+          },
+          "strokeWidth": {
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {
+        "data": "line-01"
+      },
+      "encode": {
+        "enter": {
+          "text": {
+            "field": "datum.Cost",
+            "format": ".2~s"
+          },
+          "fontSize": {
+            "value": 12
+          }
+        }
+      },
+      "transform": [
+        {
+          "type": "label",
+          "size": [
+            600,
+            400
+          ],
+          "padding": 5,
+          "avoidBaseMark": true,
+          "anchor": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ],
+          "offset": [
+            8
+          ]
+        }
+      ]
+    }
+  ]
+}
