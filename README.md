@@ -106,4 +106,6 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | [CLI package manager lookup](examples/cli-package-manager) | Provide the intended manager for shadcn initialization and verify an installed Laravel React component. |
 
+| [Stateful Lua iterator](examples/stateful-lua-iterator) | Keep a chained generic-for loop while combining C API closures with Sol2-bound methods. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
