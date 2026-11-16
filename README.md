@@ -104,4 +104,6 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | [Fastfetch shared row](examples/fastfetch-shared-row) | Review the native Lua recommendation and the limits of a POSIX Command example. |
 
+| [CLI package manager lookup](examples/cli-package-manager) | Provide the intended manager for shadcn initialization and verify an installed Laravel React component. |
+
 The examples are free to use. Unless an example includes its own license, the MIT license applies. The public confirmation page example retains its AGPLv3 license.
