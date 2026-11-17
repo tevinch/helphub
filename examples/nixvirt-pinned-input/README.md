@@ -2,7 +2,7 @@
 
 NixVirt's upstream `default.nix` returns outputs using its own locked inputs. It does not accept a `pkgs` or `nixpkgs` override argument. To select another package source without a fork, put the input relationship in a small caller-owned flake, then expose that caller through `flake-compat`.
 
-**Verification status:** native Nix evaluation has not yet been run for this example. The Python evidence-validator controls pass locally; they do not establish that the Nix expressions work. The included CI job runs the actual imports and both positive and negative cases. Its generated lock must be retained and checked again before treating this example as verified.
+**Verification status:** the [native bootstrap check passed](https://github.com/tevinch/helphub/actions/runs/44128760654) with Nix 2.35.6 on Ubuntu 24.04 (`x86_64-linux`). Both real imports, generated XML, package derivation, repeated evaluation and the absent-`follows` control passed their acceptance checks. The generated lock still needs to be retained and checked in `committed` mode before this is a reproducible checked example. This was a software-operated evaluation check; no virtual machine was created or run, and adoption in the original application remains unverified.
 
 ## The caller files
 
