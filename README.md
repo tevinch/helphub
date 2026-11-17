@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Recurring task overview](examples/recurring-task-overview) | Find recurring configurations across Super Productivity projects while keeping existing task settings. |
 | [Line label spacing](examples/line-label-spacing) | Keep all value labels visible and clear of the supplied Vega line chart. |
 | [Template site upgrade](examples/template-site-upgrade) | Review al-folio starter changes and upgrade selected gems while preserving site customizations. |
 | [Ruby app console](examples/app-console-context) | Inspect and change existing Ruby app state in IRB, then resume the caller. |
