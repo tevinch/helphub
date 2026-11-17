@@ -1,0 +1,32 @@
+name: NixVirt input example
+
+"on":
+  push:
+    paths:
+      - "examples/nixvirt-pinned-input/**"
+      - ".github/workflows/nixvirt-input-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+        with:
+          enable_kvm: false
+          set_as_trusted_user: false
+      - name: Check evidence validation
+        working-directory: examples/nixvirt-pinned-input
+        run: python3 -m unittest -v test_verifier.py
+      - name: Evaluate both imports and the absent-follows control
+        working-directory: examples/nixvirt-pinned-input
+        env:
+          NIX_CONFIG: "experimental-features ="
+        run: python3 verify.py
