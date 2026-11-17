@@ -4,6 +4,21 @@
 
 This addresses the error reported in [shadcn-ui/ui#12648](https://github.com/shadcn-ui/ui/issues/12648). That report does not include the project's package-manager declarations, lockfiles, Node version or intended manager. Choose the case that matches the project; what selected pnpm and whether the reporter can adopt the solution remain unconfirmed.
 
+## Diagnose selection when both manager fields are absent
+
+With the published shadcn 4.23.0 / registry 0.2.1 detector, `pnpm-lock.yaml` or `pnpm-workspace.yaml` can select pnpm without `packageManager` or `devEngines.packageManager`. An ancestor selector matters when the app has no nearer selector. A local `package-lock.json` wins over an ancestor pnpm marker; a same-directory pnpm marker is checked first. Known manager metadata in the directory of a matching marker can override it.
+
+Save [inspect-manager.cjs](inspect-manager.cjs) outside your project. From the **same directory as the failing command**, run it by its saved path:
+
+```sh
+npm --version
+node /path/to/inspect-manager.cjs
+```
+
+Replace `/path/to/inspect-manager.cjs` with where you saved the file. It reports relevant filenames by directory level, manager names, Node version and pnpm availability. It reads no lockfile contents, prints no full paths or unrelated package/environment values, and changes no files. Share the output plus whether the app normally uses `npm install` or `pnpm install` before choosing a compatible recovery command.
+
+Twelve scripted cases using the actual published detector verified metadata-free local/ancestor selection, nearest-selector priority, competing markers and same-directory metadata overrides on Node 24.19.0/macOS 14.6. The diagnostic also ran on Node 18.20.4; that does not establish support for running shadcn itself on Node 18 or Monterey. These are selector/diagnostic checks, separate from the init/component checks below.
+
 ## Check the app's intended package manager
 
 Run from the Laravel app root. Inspect `package.json` (`packageManager` and `devEngines.packageManager`), the app's lockfile, and workspace files or lockfiles in parent directories. Check the package manager and version expected by that project or workspace.

@@ -1,5 +1,7 @@
 # Updating a site created from the al-folio template
 
+For repeated upstream commits between releases, see the [routine source-sync workflow](routine-updates.md) and its offline Git example. It handles an untagged copied source commit and preserves site changes through ordinary subsequent merges.
+
 Keep your site's files and review the starter changes between releases. Updating gems and reconciling starter files are separate jobs: `bundle update` cannot copy new configuration or workflows into your repository.
 
 This guide uses released **v1.1 → v1.2**. It includes a disposable example that builds a customized site with the real released gems. It does not migrate an unseen site automatically.
