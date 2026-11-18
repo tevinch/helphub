@@ -172,6 +172,48 @@ def run_desktop(output):
             raise AssertionError(description)
         report["checks"].append(description)
 
+    def save_report():
+        pending = output / "result.tmp"
+        pending.write_text(json.dumps(report, indent=2) + "\n")
+        pending.replace(output / "result.json")
+
+    def diagnostic_state(case, stage, text):
+        """Observe owned fixture state without changing selection or acceptance."""
+        snapshot = {"stage": stage}
+
+        def observe(*parts):
+            try:
+                result = subprocess.run([str(x) for x in parts], env=env, capture_output=True,
+                                        text=True, timeout=4)
+                return {"returncode": result.returncode, "stdout": result.stdout[:2048],
+                        "stderr": result.stderr[:2048]}
+            except Exception as exc:
+                return {"error": repr(exc)}
+
+        snapshot["clipboard"] = observe("xclip", "-selection", "clipboard", "-o")
+        snapshot["mouse"] = observe("tmux", "-S", socket, "show-options", "-gqv", "mouse")
+        fields = ("pane_in_mode", "pane_mode", "selection_present", "selection_active",
+                  "selection_start_x", "selection_start_y", "selection_end_x", "selection_end_y",
+                  "copy_cursor_x", "copy_cursor_y", "mouse_any_flag")
+        snapshot["pane_fields"] = list(fields)
+        snapshot["pane_state"] = observe("tmux", "-S", socket, "display-message", "-p",
+                                         "-t", "selection:0.0", "|".join("#{" + x + "}" for x in fields))
+        snapshot["buffers"] = observe("tmux", "-S", socket, "list-buffers", "-F",
+                                      "#{buffer_name}|#{buffer_size}|#{buffer_sample}")
+        snapshot["pointer"] = observe("xdotool", "getmouselocation", "--shell")
+        try:
+            count = text.getNSelections()
+            selections = []
+            for index in range(min(count, 4)):
+                start, end = text.getSelection(index)
+                selections.append({"start": start, "end": end, "text": text.getText(start, end)[:2048]})
+            snapshot["atspi_selection"] = {"count": count, "selections": selections}
+        except Exception as exc:
+            snapshot["atspi_selection"] = {"error": repr(exc)}
+        case["snapshots"].append(snapshot)
+        save_report()
+        print(json.dumps({"case": case["case"], "diagnostic": snapshot}), flush=True)
+
     def wait_for(probe, description, seconds=20):
         deadline, last = time.monotonic() + seconds, None
         while time.monotonic() < deadline:
@@ -233,11 +275,16 @@ def run_desktop(output):
                  == "UNCHANGED BASELINE", "Fresh clipboard baseline")
 
     def transfer(source_proc, source_wid, target_wid, token, expected, label):
+        diagnostic = {"case": label, "expected_transfer": expected, "snapshots": []}
+        report.setdefault("diagnostics", []).append(diagnostic)
         baseline_clipboard()
         activate(source_wid)
         text, offset = wait_for(lambda: source_text(source_proc.pid, token), "Source accessibility text")
         first = text.getCharacterExtents(offset, pyatspi.DESKTOP_COORDS)
         last = text.getCharacterExtents(offset + len(token) - 1, pyatspi.DESKTOP_COORDS)
+        diagnostic["coordinates"] = {"first_character": list(first), "last_character": list(last),
+                                     "text_offset": offset, "text_length": len(token)}
+        diagnostic_state(diagnostic, "before-drag", text)
         require(first[2] > 0 and first[3] > 0 and first[1] == last[1], "Visible single-line drag geometry")
         command("xdotool", "mousemove", "--sync", first[0] + 1, first[1] + first[3] // 2)
         command("xdotool", "mousedown", "1")
@@ -248,15 +295,26 @@ def run_desktop(output):
                         first[0] + 1 + (end_x - first[0] - 1) * step // 8,
                         first[1] + first[3] // 2)
                 time.sleep(.04)
+            diagnostic_state(diagnostic, "drag-held", text)
         finally:
             command("xdotool", "mouseup", "1")
+        diagnostic_state(diagnostic, "after-drag", text)
+        try:
+            ImageGrab.grab().save(output / f"{label}-after-drag.png")
+        except Exception as screenshot_error:
+            diagnostic["after_drag_screenshot_error"] = repr(screenshot_error)
+            save_report()
         command("xdotool", "key", "--clearmodifiers", "ctrl+shift+c")
+        diagnostic_state(diagnostic, "after-copy-command", text)
         if expected:
             copied = wait_for(lambda: (value if (value := command("xclip", "-selection", "clipboard", "-o"))
                                       == token else None), "Terminal copied exact selected text")
         else:
             time.sleep(.3)
             copied = command("xclip", "-selection", "clipboard", "-o")
+            diagnostic["copied_at_assertion"] = copied
+            save_report()
+            print(json.dumps({"case": label, "copied_at_assertion": copied}), flush=True)
             require(copied == "UNCHANGED BASELINE", "Mouse-on control cannot copy source token")
         previous = recipient.read_text()
         activate(target_wid)
@@ -329,24 +387,49 @@ def run_desktop(output):
     except Exception as exc:
         report["status"] = "failed"
         report["error"] = repr(exc)
-        ImageGrab.grab().save(output / "failure.png")
+        save_report()
+        print(json.dumps(report, indent=2), flush=True)
+        try:
+            ImageGrab.grab().save(output / "failure.png")
+        except Exception as screenshot_error:
+            report["failure_screenshot_error"] = repr(screenshot_error)
+            save_report()
         raise
     finally:
-        if socket.exists():
-            tmux("kill-server", check=False)
+        save_report()
+        cleanup_errors = []
+        try:
+            if socket.exists():
+                tmux("kill-server", check=False)
+        except Exception as cleanup_error:
+            cleanup_errors.append(repr(cleanup_error))
         for proc in reversed(processes):
-            if proc.poll() is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait(timeout=5)
+            try:
+                if proc.poll() is None:
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                        proc.wait(timeout=5)
+            except Exception as cleanup_error:
+                cleanup_errors.append(repr(cleanup_error))
         for log in logs:
-            log.close()
-        (output / "result.json").write_text(json.dumps(report, indent=2) + "\n")
-        scratch.cleanup()
-    print(json.dumps(report, indent=2))
+            try:
+                log.close()
+            except Exception as cleanup_error:
+                cleanup_errors.append(repr(cleanup_error))
+        try:
+            scratch.cleanup()
+        except Exception as cleanup_error:
+            cleanup_errors.append(repr(cleanup_error))
+        if cleanup_errors:
+            report["status"] = "failed"
+            report["cleanup_errors"] = cleanup_errors
+        save_report()
+        print(json.dumps(report, indent=2), flush=True)
+        if cleanup_errors:
+            raise RuntimeError("Owned fixture cleanup failed; see result.json")
 
 
 if __name__ == "__main__":
