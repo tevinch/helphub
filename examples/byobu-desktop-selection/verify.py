@@ -313,9 +313,17 @@ def run_desktop(output):
             time.sleep(.3)
             copied = command("xclip", "-selection", "clipboard", "-o")
             diagnostic["copied_at_assertion"] = copied
+            internal = subprocess.run(["tmux", "-S", str(socket), "show-buffer"], env=env,
+                                      capture_output=True, text=True, check=True, timeout=15).stdout
+            diagnostic["tmux_buffer_at_assertion"] = internal
             save_report()
-            print(json.dumps({"case": label, "copied_at_assertion": copied}), flush=True)
-            require(copied == "UNCHANGED BASELINE", "Mouse-on control cannot copy source token")
+            print(json.dumps({"case": label, "copied_at_assertion": copied,
+                              "tmux_buffer_at_assertion": internal}), flush=True)
+            # VTE Copy can empty CLIPBOARD without a terminal selection. Source
+            # and recipient content are separate; exact paste checks still follow.
+            require(copied in ("", "UNCHANGED BASELINE") and token not in copied,
+                    "Mouse-on control cannot copy source token")
+            require(internal == token, "Mouse-on drag copied exact source token into tmux buffer")
         previous = recipient.read_text()
         activate(target_wid)
         command("xdotool", "key", "--clearmodifiers", "ctrl+shift+v")
