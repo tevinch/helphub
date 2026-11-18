@@ -46,6 +46,18 @@ jobs:
           done
           xprop -root _NET_SUPPORTING_WM_CHECK | grep -q 'window id' || {
             printf 'The isolated window manager did not become ready.\n' >&2
+            printf 'xfwm4 PID: %s\n' "$selection_wm_pid" >&2
+            if kill -0 "$selection_wm_pid" 2>/dev/null; then
+              printf 'xfwm4 process is alive; current process status follows.\n' >&2
+              ps -p "$selection_wm_pid" -o pid=,ppid=,stat=,args= >&2 || true
+            else
+              if wait "$selection_wm_pid"; then selection_wm_status=0; else selection_wm_status=$?; fi
+              printf 'xfwm4 process exited with status %s.\n' "$selection_wm_status" >&2
+            fi
+            printf 'xfwm4 stdout/stderr log follows.\n' >&2
+            cat "$RUNNER_TEMP/selection-xfwm4.log" >&2 || true
+            printf 'Final _NET_SUPPORTING_WM_CHECK diagnostic follows.\n' >&2
+            xprop -root _NET_SUPPORTING_WM_CHECK >&2 || true
             exit 1
           }
           /usr/bin/python3 examples/byobu-desktop-selection/verify.py --output "$RUNNER_TEMP/selection-results"
