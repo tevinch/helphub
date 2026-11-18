@@ -377,10 +377,27 @@ def run_desktop(output):
         config_file.write_text(INITIAL_CONFIG + "\nset -g mouse off\n")
         retained_config = config_file.read_text()
         # Shutdown is restricted to the socket created inside this scratch tree.
+        old_server_pid = int(tmux("display-message", "-p", "#{pid}"))
+        require(old_server_pid > 0, "Original owned server PID recorded")
         tmux("kill-server")
         source_proc.wait(timeout=10)
-        wait_for(lambda: not socket.exists(), "Owned server stopped before new-server check")
+
+        def old_server_stopped():
+            try:
+                state = Path(f"/proc/{old_server_pid}/stat").read_text().rsplit(")", 1)[1].split()[0]
+            except FileNotFoundError:
+                return True
+            return state == "Z"
+
+        # A terminated Unix server can leave its socket pathname behind.
+        wait_for(old_server_stopped, "Owned server stopped before new-server check")
+        report["old_server_pid"] = old_server_pid
+        report["old_socket_path_remains"] = socket.exists()
         source_proc, source_wid = start_source()
+        new_server_pid = int(tmux("display-message", "-p", "#{pid}"))
+        report["new_server_pid"] = new_server_pid
+        require(new_server_pid > 0 and new_server_pid != old_server_pid,
+                "Persistence check uses a different actual server process")
         require(tmux("show-options", "-gqv", "mouse") == "off", "Fresh Byobu server loaded persistent override")
         transfer(source_proc, source_wid, target_wid, TOKENS[2], True, "fresh-server-copy")
         report["unrelated_after_restart"] = unrelated_file.read_text()

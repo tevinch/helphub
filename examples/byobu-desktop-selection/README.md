@@ -51,7 +51,7 @@ If mouse is already `off` and selection still fails, include `byobu --version`, 
 
 ## Check status
 
-**Complete native desktop validation is pending.** The [diagnostic run](https://github.com/tevinch/helphub/actions/runs/44345541288) exercised Byobu startup, mouse capture and clipboard behavior. Positive cross-program transfers and fresh-server persistence have not passed yet. No original-requester confirmation is claimed.
+**Complete native desktop validation is pending.** The [recorded run](https://github.com/tevinch/helphub/actions/runs/44365282918) completed first and repeated clipboard transfers into a second terminal program. Its fresh-server check stopped before the persistence transfer, which has not passed yet. No original-requester confirmation is claimed.
 
 The inspectable [verification script](verify.py) supports only the accompanying fresh GitHub-hosted Ubuntu 24.04 workflow. Before starting D-Bus, Xvfb, the window manager or Python, that workflow clears inherited session pointers and creates private HOME and XDG directories. The script checks the hosted-runner context, profile paths, owned Xvfb process and private D-Bus process ancestry before importing AT-SPI or sending desktop input. These are checks against accidental use of an existing session, not a security boundary against a deliberately altered environment. It uses distribution packages, records their actual versions and targets an explicit private tmux socket; Ubuntu's Byobu package differs from the current upstream release.
 
