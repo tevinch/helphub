@@ -1,0 +1,11 @@
+:root { font-family: system-ui, sans-serif; color: #1c3044; background: #f4f7fa; }
+body { margin: 0; }
+main { max-width: 760px; margin: 28px auto; padding: 0 24px; }
+h1 { font-size: 28px; }
+h2 { font-size: 18px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+button { padding: 7px 12px; border: 1px solid #9daec0; border-radius: 5px; background: white; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid #1677ff; outline-offset: 2px; }
+.files-panel { overflow: auto; background: white; outline: 1px solid #b9c9d8; border-radius: 6px; }
+.demo-slot { min-height: 400px; }
+#other-panel { max-height: 100px; overflow: auto; }
