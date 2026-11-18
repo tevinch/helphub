@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Byobu desktop selection](examples/byobu-desktop-selection) | Restore native terminal selection and copy text into another desktop program with the tmux backend. |
 | [Tree with a parent maximum](examples/tree-parent-maximum) | Keep a nonvirtual Ant Design Tree within a parent maximum while preserving pointer and keyboard interaction. |
 | [NixVirt package input](examples/nixvirt-pinned-input) | Select and verify a pinned nixpkgs input through a caller-owned legacy import. |
 | [Recurring task overview](examples/recurring-task-overview) | Find recurring configurations across Super Productivity projects while keeping existing task settings. |

@@ -51,7 +51,9 @@ If mouse is already `off` and selection still fails, include `byobu --version`, 
 
 ## Check status
 
-**Complete native desktop validation is pending.** The [recorded run](https://github.com/tevinch/helphub/actions/runs/44365282918) completed first and repeated clipboard transfers into a second terminal program. Its fresh-server check stopped before the persistence transfer, which has not passed yet. No original-requester confirmation is claimed.
+A [complete scripted X11 check](https://github.com/tevinch/helphub/actions/runs/44368080592) passed on Ubuntu 24.04 with its distribution packages: Byobu **6.11-0ubuntu1.1**, tmux **3.4-1ubuntu0.2**, Xfce Terminal **1.1.3-1build1** and xclip **0.13-3**. It verified the mouse-on control, first and repeated cross-program clipboard transfers, and another transfer after a different actual Byobu server loaded the persistent override. Original pane content, recipient content, configuration and an unrelated file were retained.
+
+These are the checked distribution versions; upstream 7.23 was used for the source references below. The check used an isolated X11 display, not the requester’s machine. Other backends, Wayland and original-requester adoption are unverified.
 
 The inspectable [verification script](verify.py) supports only the accompanying fresh GitHub-hosted Ubuntu 24.04 workflow. Before starting D-Bus, Xvfb, the window manager or Python, that workflow clears inherited session pointers and creates private HOME and XDG directories. The script checks the hosted-runner context, profile paths, owned Xvfb process and private D-Bus process ancestry before importing AT-SPI or sending desktop input. These are checks against accidental use of an existing session, not a security boundary against a deliberately altered environment. It uses distribution packages, records their actual versions and targets an explicit private tmux socket; Ubuntu's Byobu package differs from the current upstream release.
 
