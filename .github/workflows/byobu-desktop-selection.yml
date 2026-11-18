@@ -1,0 +1,71 @@
+name: Byobu desktop selection
+
+"on":
+  workflow_dispatch:
+  push:
+    paths:
+      - 'examples/byobu-desktop-selection/**'
+      - '.github/workflows/byobu-desktop-selection.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install distribution desktop packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends byobu tmux xfce4-terminal xfwm4 xdotool xclip x11-utils xvfb xauth dbus-x11 at-spi2-core python3-pyatspi python3-pil
+          dpkg-query -W byobu tmux xfce4-terminal xclip
+      - name: Check native selection and cross-program paste
+        env:
+          GDK_BACKEND: x11
+          NO_AT_BRIDGE: '0'
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_ACTIONS" == true && "$RUNNER_ENVIRONMENT" == github-hosted && "$RUNNER_OS" == Linux ]]
+          umask 077
+          selection_desktop=$(mktemp -d "$RUNNER_TEMP/selection-desktop.XXXXXXXX")
+          mkdir "$selection_desktop/profile" "$selection_desktop/config" "$selection_desktop/cache" "$selection_desktop/data" "$selection_desktop/state" "$selection_desktop/runtime" "$selection_desktop/tmp"
+          touch "$selection_desktop/runtime/Xauthority"
+          cat > "$selection_desktop/start.sh" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          xfwm4 --compositor=off > "$RUNNER_TEMP/selection-xfwm4.log" 2>&1 &
+          selection_wm_pid=$!
+          trap 'kill "$selection_wm_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..80}; do
+            if xprop -root _NET_SUPPORTING_WM_CHECK | grep -q 'window id'; then break; fi
+            sleep .1
+          done
+          xprop -root _NET_SUPPORTING_WM_CHECK | grep -q 'window id' || {
+            printf 'The isolated window manager did not become ready.\n' >&2
+            exit 1
+          }
+          /usr/bin/python3 examples/byobu-desktop-selection/verify.py --output "$RUNNER_TEMP/selection-results"
+          SH
+          env -i PATH=/usr/bin:/bin LANG=C.UTF-8 USER="$(id -un)" LOGNAME="$(id -un)" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ENVIRONMENT="$RUNNER_ENVIRONMENT" RUNNER_OS="$RUNNER_OS" RUNNER_TEMP="$RUNNER_TEMP" \
+            SELECTION_DESKTOP_ROOT="$selection_desktop" HOME="$selection_desktop/profile" \
+            XDG_CONFIG_HOME="$selection_desktop/config" XDG_CACHE_HOME="$selection_desktop/cache" \
+            XDG_DATA_HOME="$selection_desktop/data" XDG_STATE_HOME="$selection_desktop/state" \
+            XDG_RUNTIME_DIR="$selection_desktop/runtime" XDG_CONFIG_DIRS=/etc/xdg XDG_DATA_DIRS=/usr/local/share:/usr/share \
+            TMPDIR="$selection_desktop/tmp" XAUTHORITY="$selection_desktop/runtime/Xauthority" GDK_BACKEND=x11 NO_AT_BRIDGE=0 \
+            dbus-run-session -- xvfb-run -a -f "$selection_desktop/runtime/Xauthority" \
+              -s '-screen 0 1600x1100x24 -dpi 96' bash "$selection_desktop/start.sh"
+      - name: Retain native evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: byobu-desktop-selection
+          path: |
+            ${{ runner.temp }}/selection-results
+            ${{ runner.temp }}/selection-xfwm4.log
+          if-no-files-found: warn
+          retention-days: 14
