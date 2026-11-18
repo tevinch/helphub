@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Struct field selection](examples/struct-field-selection) | Classify msgspec fields by kind or compare complete descriptor values without hashing them. |
 | [Byobu desktop selection](examples/byobu-desktop-selection) | Restore native terminal selection and copy text into another desktop program with the tmux backend. |
 | [Tree with a parent maximum](examples/tree-parent-maximum) | Keep a nonvirtual Ant Design Tree within a parent maximum while preserving pointer and keyboard interaction. |
 | [NixVirt package input](examples/nixvirt-pinned-input) | Select and verify a pinned nixpkgs input through a caller-owned legacy import. |
