@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Math headings and legends for Chart.js</title>
+  <link rel="stylesheet" href="./node_modules/katex/dist/katex.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Chart.js · HTML math labels</p>
+    <h1 id="math-heading"></h1>
+    <p class="intro">Use the formula buttons to show or hide a series. The plotted values are illustrative; these formulas are labels.</p>
+    <div id="math-legend" aria-label="Chart series"></div>
+    <div class="plot">
+      <canvas id="chart" role="img" aria-label="Line chart of two illustrative data series. Formula buttons control each series."></canvas>
+    </div>
+    <div class="controls">
+      <button id="update-example" type="button">Update example</button>
+      <p id="update-status" role="status">The second series starts hidden.</p>
+    </div>
+    <p class="note">The formulas are HTML outside the canvas. A canvas-only PNG export will not include them.</p>
+  </main>
+  <script src="./node_modules/chart.js/dist/chart.umd.min.js"></script>
+  <script src="./node_modules/katex/dist/katex.min.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

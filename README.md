@@ -103,6 +103,7 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Compact CSV exports](examples/compact-csv-exports) | Choose compact per-export layouts while retaining sparse read indices. |
 | [Solid input drafts](examples/solid-input-drafts) | Preserve a number input draft while toggling disabled state in Solid 2.0 RCs. |
 | [Compact Helix diagnostics](examples/helix-compact-diagnostics) | Uncover code beneath a legacy diagnostic box while retaining active diagnostics. |
+| [Math chart labels](examples/math-chart-labels) | Render a Chart.js heading and interactive series legend with LaTeX. |
 
 | [Literal CLI arguments](examples/literal-cli-arguments) | Keep version-like text intact while preserving numeric parsing for other Python Fire parameters. |
 
