@@ -1,6 +1,8 @@
 # Sort selected garden folders by creation date
 
-**Adoption update, November 16, 2026:** The requester [reported that their full garden build was terminated with exit 143/SIGTERM](https://github.com/oleeskild/obsidian-digital-garden/issues/855#issuecomment-6835701186). The cause has not been established. The small fixture checks below do not demonstrate acceptable performance for that garden, and this recipe has not restored the requester’s full build workflow. A comparison with their original template, note/folder counts and the earlier build log is needed before recommending a change.
+**Performance correction, November 19, 2026:** The previous template's record-preparation loop emitted a large whitespace-only text node. Compressing that output made complete Eleventy production builds much slower as folders grew. The corrected macro suppresses that unused whitespace; its sorting, links and HTML structure stay the same. Preserve every `{%-` and `-%}` marker when copying the macro.
+
+The requester [reported a 30-minute Forestry.md build failure](https://github.com/oleeskild/obsidian-digital-garden/issues/855#issuecomment-6835701186) and later [reported that the default file tree builds in 3–6 minutes](https://github.com/oleeskild/obsidian-digital-garden/issues/855#issuecomment-6990852595). The local checks below reproduce a substantial inefficiency in the published recipe. The exact deployed template and Forestry account were not available, so this does not establish that the requester's full build has been restored.
 
 Keep the normal file-tree order everywhere except the folders you choose. Inside those folders, notes appear newest first while their links, titles, icons and child objects remain intact.
 
@@ -19,7 +21,7 @@ The reference is based on the navigation template shipped with [Digital Garden 1
 
    Use the folder paths shown in the generated tree, with matching capitalization and no leading or trailing slash. A folder name is an exact match: `Journal` does not also select `Journal/Archive`.
 
-2. Copy the `menuChildren` macro from [filetree.njk](filetree.njk) above your existing `menuItem` macro. Keep your own navigation markup and styles.
+2. Copy the `menuChildren` macro, including its whitespace-control hyphens, from [filetree.njk](filetree.njk) above your existing `menuItem` macro. Keep your own navigation markup and styles.
 
 3. In `menuItem`'s folder branch, replace the loop that calls `menuItem` for each child with:
 
@@ -57,17 +59,34 @@ If it is absent, check the Digital Garden plugin's created-timestamp export sett
 
 ## Verification
 
-Checked against Digital Garden template **1.96.0**, Eleventy **3.1.2** and Nunjucks **3.2.4**, with the current Digital Garden plugin **2.103.0** used as the source for exported-date behavior.
+Checked against Digital Garden template **1.96.0**, Eleventy **3.1.2**, Nunjucks **3.2.4** and Node **22.23.5**. Digital Garden plugin **2.103.0** supplies the exported-date behavior. The correction changes only whitespace controls in the macro's data-preparation section; it adds no JavaScript filter, hook or host configuration change.
 
-To repeat the scripted check with Node 22, prepare a clean disposable checkout of template tag `1.96.0`, install its locked dependencies, and run:
+With Node 22 and a clean disposable checkout of template tag `1.96.0` with its locked dependencies installed, run:
 
 ```sh
 node verify.cjs /absolute/path/to/digitalgarden
 ```
 
-[verify.cjs](verify.cjs) makes its own temporary source copy, adds synthetic notes and removes that copy when finished. It builds the real template, checks selected and nested folders, untouched natural alphabetical order, UTC offsets, ties, missing dates, pins, hidden notes, per-note settings, existing navigation content, icons, active links and every generated article. It changes a date and rebuilds. The original alphabetical template and an omitted date index must both fail the chronology assertions.
+[verify.cjs](verify.cjs) copies that checkout into a temporary directory and removes the copy afterward. It runs complete Eleventy production builds on an **18-note** correctness fixture, including the native HTML transformations and compression. It checks selected and nested folders, an untouched similarly named folder, natural alphabetical order, UTC offsets, ties, missing dates, pins, hidden notes, note settings, existing navigation slots, icons, active links and every generated article. It edits a date, adds and deletes a note, and rebuilds after each operation. It also turns the global file-tree setting off and back on. The default alphabetical template, a missing date index and omitted custom registration must fail their respective checks. A development build must fail the independent inline-style compression check; the final production build must pass it.
 
-The local template's existing 409 tests passed. A separate software-operated Chrome check followed three note links and used the mobile menu at widths 1280 and 390 pixels. Forestry.md account access and the requester's own garden were not tested; no adoption is claimed.
+The default run also compares the stock and corrected templates on the same **200-note** synthetic garden, with **160 notes in selected folders**. [verify-scale.cjs](verify-scale.cjs) allows up to ten minutes for the stock baseline, then requires the corrected build to finish within three times that measured duration, with a 15-second minimum allowance for startup variation. It verifies completed articles, navigation links, sorting, the disabled-note fallback and actual native production transformations. This is a local regression guard, not a Forestry build-time guarantee.
+
+For a larger synthetic comparison:
+
+```sh
+node verify-scale.cjs /absolute/path/to/digitalgarden ./filetree.njk 1000
+```
+
+Additional local fixtures put a small Markdown table in each of **1,000 notes**, with no images. Each stock/corrected pair used identical content, settings and native production transformations:
+
+| Selected notes | Stock template | Corrected template | Final navigation size, both templates |
+| --- | ---: | ---: | ---: |
+| 120 (12%) | 268.1 s | 238.6 s | 216,007 bytes |
+| 800 (80%, stress case) | 175.2 s | 260.5 s | 215,992 bytes |
+
+Both corrected builds completed all 1,000 articles and navigation checks. An earlier stress attempt reached its four-minute local cap before finishing; the completed rerun used a budget of three times the stock measurement. Machine load affects these timings, so they establish bounded completion on these fixtures rather than a universal speedup.
+
+The bundled verifier and the 1,000-note measurements cover the complete Eleventy production stage; theme fetching and the separate site Sass command are outside their scope. A separate **200-note, 24-selected-note** fixture passed the complete `npm run build` command, a changed-date rebuild, CSS delivery and software-operated desktop/mobile navigation checks. That fixture used the native dark base with no external theme configured. These checks use synthetic content. Forestry account timing and the requester's adoption outcome remain unverified.
 
 Navigation markup is adapted from [Ole Eskild Steensen's MIT-licensed template](https://github.com/oleeskild/digitalgarden/blob/1.96.0/src/plugins/dg-filetree/templates/filetree.njk). Its copyright notice is retained in [LICENSE](LICENSE).
 

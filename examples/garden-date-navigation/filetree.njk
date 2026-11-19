@@ -9,28 +9,28 @@
   {% include "components/navbar.njk" %}
 {% else %}
 
-    {% macro menuChildren(children, step, currentPath) %}
-        {% if currentPath in newestFirstFolders %}
-            {% set pinned = [] %}
-            {% set folders = [] %}
-            {% set notes = [] %}
-            {% for name, child in children %}
-                {% if child.isFolder %}
-                    {% set ignored = folders.push({name: name, child: child}) %}
-                {% elif child.isNote %}
-                    {% set note = (navigationNotesByUrl[child.permalink] or [])[0] %}
-                    {% set created = "" %}
-                    {% if note.data.created %}
-                        {% set created = note.data.created | dateToZulu %}
-                    {% endif %}
-                    {% set row = {name: name, child: child, created: created} %}
-                    {% if child.pinned %}
-                        {% set ignored = pinned.push(row) %}
-                    {% else %}
-                        {% set ignored = notes.push(row) %}
-                    {% endif %}
-                {% endif %}
-            {% endfor %}
+    {%- macro menuChildren(children, step, currentPath) -%}
+        {%- if currentPath in newestFirstFolders -%}
+            {%- set pinned = [] -%}
+            {%- set folders = [] -%}
+            {%- set notes = [] -%}
+            {%- for name, child in children -%}
+                {%- if child.isFolder -%}
+                    {%- set ignored = folders.push({name: name, child: child}) -%}
+                {%- elif child.isNote -%}
+                    {%- set note = (navigationNotesByUrl[child.permalink] or [])[0] -%}
+                    {%- set created = "" -%}
+                    {%- if note.data.created -%}
+                        {%- set created = note.data.created | dateToZulu -%}
+                    {%- endif -%}
+                    {%- set row = {name: name, child: child, created: created} -%}
+                    {%- if child.pinned -%}
+                        {%- set ignored = pinned.push(row) -%}
+                    {%- else -%}
+                        {%- set ignored = notes.push(row) -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
             {% for row in pinned | sort(true, false, "created") %}
                 {{ menuItem(row.name, row.child, step, currentPath + "/" + row.name) }}
             {% endfor %}
