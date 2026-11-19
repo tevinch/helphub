@@ -105,6 +105,7 @@ Runnable examples and focused guides for practical development questions. Each e
 | [Compact Helix diagnostics](examples/helix-compact-diagnostics) | Uncover code beneath a legacy diagnostic box while retaining active diagnostics. |
 | [Math chart labels](examples/math-chart-labels) | Render a Chart.js heading and interactive series legend with LaTeX. |
 | [Interactive orbit](examples/interactive-orbit) | Keep a PyVista scene interactive while a Qt timer advances an orbit. |
+| [Task time estimates](examples/task-time-estimates) | Preview tasks with missing Mindwtr estimates and conditionally apply a reviewed duration. |
 
 | [Literal CLI arguments](examples/literal-cli-arguments) | Keep version-like text intact while preserving numeric parsing for other Python Fire parameters. |
 
