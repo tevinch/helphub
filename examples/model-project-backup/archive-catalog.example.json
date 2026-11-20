@@ -1,0 +1,126 @@
+{
+  "project": {
+    "id": "9e0dc796-2a7d-4e50-9a0b-83a9f1e4354c",
+    "type": "Project",
+    "schemaVersion": 6,
+    "name": "Archive_Catalog",
+    "description": "An archived catalog modeling project.",
+    "owner": "Example",
+    "createdAt": "2026-11-20T17:07:07.268Z",
+    "currentDiagramType": "ClassDiagram",
+    "currentDiagramIndices": {
+      "ClassDiagram": 0,
+      "ObjectDiagram": 0,
+      "StateMachineDiagram": 0,
+      "AgentDiagram": 0,
+      "ComponentDiagram": 0,
+      "DeploymentDiagram": 0,
+      "UserDiagram": 0,
+      "GUINoCodeDiagram": 0,
+      "KnowledgeGraphDiagram": 0,
+      "QuantumCircuitDiagram": 0,
+      "NNDiagram": 0,
+      "BPMN": 0
+    },
+    "diagrams": {
+      "ClassDiagram": [
+        {
+          "id": "a179c2d2-b26b-4384-866c-c1a0a71185fb",
+          "title": "Archived stock record",
+          "model": {
+            "version": "3.0.0",
+            "type": "ClassDiagram",
+            "size": {
+              "width": 600,
+              "height": 400
+            },
+            "interactive": {
+              "elements": {},
+              "relationships": {}
+            },
+            "elements": {
+              "aedc3cc5-8e0e-436c-9f42-da09d7e4bb39": {
+                "id": "aedc3cc5-8e0e-436c-9f42-da09d7e4bb39",
+                "name": "ArchivedStock",
+                "type": "Class",
+                "owner": null,
+                "bounds": {
+                  "x": 140,
+                  "y": 140,
+                  "width": 140,
+                  "height": 40
+                },
+                "attributes": [],
+                "methods": []
+              }
+            },
+            "relationships": {},
+            "assessments": {}
+          },
+          "lastUpdate": "2026-11-20T17:07:09.391Z"
+        }
+      ],
+      "StateMachineDiagram": [
+        {
+          "id": "cbd0ef67-7a29-421c-9195-5c83c667a145",
+          "title": "Archived stock lifecycle",
+          "model": {
+            "version": "3.0.0",
+            "type": "StateMachineDiagram",
+            "size": {
+              "width": 1400,
+              "height": 740
+            },
+            "elements": {
+              "c082f3f0-70d8-45ca-9fa2-04ba11a7a49f": {
+                "id": "c082f3f0-70d8-45ca-9fa2-04ba11a7a49f",
+                "name": "Discontinued",
+                "type": "State",
+                "owner": null,
+                "bounds": {
+                  "x": 140,
+                  "y": 140,
+                  "width": 160,
+                  "height": 100
+                },
+                "bodies": [],
+                "fallbackBodies": []
+              }
+            },
+            "relationships": {},
+            "interactive": {
+              "elements": {},
+              "relationships": {}
+            },
+            "assessments": {}
+          },
+          "lastUpdate": "2026-11-20T17:07:07.268Z"
+        }
+      ]
+    },
+    "settings": {
+      "defaultDiagramType": "ClassDiagram",
+      "autoSave": true,
+      "collaborationEnabled": false,
+      "perspectives": {
+        "ClassDiagram": true,
+        "ObjectDiagram": true,
+        "StateMachineDiagram": true,
+        "AgentDiagram": true,
+        "UserDiagram": true,
+        "GUINoCodeDiagram": true,
+        "QuantumCircuitDiagram": true,
+        "NNDiagram": true,
+        "BPMN": true,
+        "ComponentDiagram": true,
+        "DeploymentDiagram": true,
+        "KnowledgeGraphDiagram": true
+      },
+      "preferredInterface": "model"
+    }
+  },
+  "exportedAt": "2026-11-20T17:07:11.246Z",
+  "version": "2.0.0",
+  "besserVersion": "8.10.1",
+  "editorVersion": "8.9.4"
+}

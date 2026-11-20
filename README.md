@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Model project backup](examples/model-project-backup) | Back up and restore a BESSER project before freeing local browser storage. |
 | [Wayland integer scaling](examples/wayland-integer-scale) | Resize each pixel buffer as an existing Smithay window moves between displays. |
 | [Calendar export product ID](examples/calendar-product-id) | Set the product ID of a calendar-link export while keeping its event data. |
 | [Struct field selection](examples/struct-field-selection) | Classify msgspec fields by kind or compare complete descriptor values without hashing them. |
