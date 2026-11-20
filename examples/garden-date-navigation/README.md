@@ -86,7 +86,9 @@ Additional local fixtures put a small Markdown table in each of **1,000 notes**,
 
 Both corrected builds completed all 1,000 articles and navigation checks. An earlier stress attempt reached its four-minute local cap before finishing; the completed rerun used a budget of three times the stock measurement. Machine load affects these timings, so they establish bounded completion on these fixtures rather than a universal speedup.
 
-The bundled verifier and the 1,000-note measurements cover the complete Eleventy production stage; theme fetching and the separate site Sass command are outside their scope. A separate **200-note, 24-selected-note** fixture passed the complete `npm run build` command, a changed-date rebuild, CSS delivery and software-operated desktop/mobile navigation checks. That fixture used the native dark base with no external theme configured. These checks use synthetic content. Forestry account timing and the requester's adoption outcome remain unverified.
+The bundled verifier and the 1,000-note measurements cover the complete Eleventy production stage; theme fetching and the separate site Sass command are outside their scope. A separate **200-note, 24-selected-note** fixture passed the complete `npm run build` command, a changed-date rebuild, CSS delivery and software-operated desktop/mobile navigation checks. That fixture used the native dark base with no external theme configured. These checks use synthetic content.
+
+The requester [confirmed the sort worked in their Forestry build](https://github.com/oleeskild/obsidian-digital-garden/issues/855#issuecomment-7022932115). They reported 5 minutes 48 seconds for a build with the custom file tree, 4 minutes 35 seconds after editing frontmatter, and 2 minutes 14 seconds with the stock file tree. These are timings from their site; compare both templates on your own content if build time matters.
 
 Navigation markup is adapted from [Ole Eskild Steensen's MIT-licensed template](https://github.com/oleeskild/digitalgarden/blob/1.96.0/src/plugins/dg-filetree/templates/filetree.njk). Its copyright notice is retained in [LICENSE](LICENSE).
 

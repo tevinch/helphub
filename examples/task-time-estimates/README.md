@@ -4,6 +4,12 @@ Find Mindwtr tasks whose estimate is not set (absent or `null`), review a saved 
 
 This is a small desktop API client for the task cleanup discussed in [Mindwtr #1507](https://github.com/dongdongbh/Mindwtr/discussions/1507). It does not add a bulk field to Mindwtr's interface or provide a combined task/project/area organizer. It uses the [documented Local API](https://docs.mindwtr.app/power-users/local-api) in Mindwtr 1.3.9. Mobile apps do not expose this API.
 
+## Built-in option
+
+On November 20, 2026, the [Mindwtr maintainer confirmed](https://github.com/dongdongbh/Mindwtr/discussions/1507#discussioncomment-19761482) that the built-in **No estimate** filter and **Bulk organize → Time estimate** were on the main branch and awaiting a release. If your installed version has both controls, you can do the cleanup in Mindwtr. Enable **Time Estimates**, open **Contexts → Filters → Time estimate → No estimate**, select the tasks you want, and apply a preset or custom estimate through **Bulk organize → Time estimate**. Applied tasks leave the filtered list. Follow the [tracking issue](https://github.com/dongdongbh/Mindwtr/issues/1591) for availability.
+
+Use the desktop API example below if you are using 1.3.9 and want to review a saved list before applying changes.
+
 ## Setup
 
 Use Mindwtr desktop 1.3.9 and Python 3. Download this folder; no additional Python packages are needed. The included checks run with Python 3.12.4.
