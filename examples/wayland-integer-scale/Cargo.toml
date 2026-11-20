@@ -1,0 +1,10 @@
+[package]
+name = "wayland-integer-scale"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.86"
+publish = false
+
+[dependencies]
+smithay-client-toolkit = { version = "=0.21.1", default-features = false }
+wayland-client = "0.31.14"
