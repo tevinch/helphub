@@ -1,0 +1,20 @@
+{
+  "name": "calendar-product-id-example",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "example": "node example.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "calendar-link": "2.11.7"
+  },
+  "devDependencies": {
+    "ical.js": "2.2.1"
+  }
+}
