@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [BentoPDF access logs](examples/bentopdf-status-logs) | Keep HTTP errors in the container log while filtering successful requests and redirects. |
 | [Recurrence start date](examples/rrule-start-date) | Give an rrule text schedule an explicit start date and preserve its end condition. |
 | [PDM with local Python](examples/pdm-local-python) | Use an existing interpreter for a PDM project with an explicit version check. |
 | [Model project backup](examples/model-project-backup) | Back up and restore a BESSER project before freeing local browser storage. |
