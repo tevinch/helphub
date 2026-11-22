@@ -1,0 +1,12 @@
+{
+  "name": "recurrence-start-date",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node demo.cjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "rrule": "2.8.1"
+  }
+}
