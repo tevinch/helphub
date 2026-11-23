@@ -1,0 +1,6 @@
+body { margin: 24px; font: 1rem system-ui, sans-serif; }
+main { max-width: 44rem; }
+.grid { height: 20rem; margin: 1rem 0; }
+.date-picker { display: flex; gap: 0.4rem; align-items: center; }
+.date-picker input { min-width: 0; width: 100%; }
+.date-picker input[aria-invalid="true"] { outline: 2px solid #b42318; outline-offset: -1px; }

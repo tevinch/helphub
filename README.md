@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Custom date range validation](examples/ag-grid-date-range) | Keep range errors and correction working in a custom AG Grid date picker. |
 | [Pinned Liberica Native Image Kit](examples/liberica-nik-pin) | Install a specific BellSoft build on a CI runner and compile a small Java program. |
 | [BentoPDF access logs](examples/bentopdf-status-logs) | Keep HTTP errors in the container log while filtering successful requests and redirects. |
 | [Recurrence start date](examples/rrule-start-date) | Give an rrule text schedule an explicit start date and preserve its end condition. |

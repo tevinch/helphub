@@ -1,0 +1,23 @@
+{
+  "name": "date-range-picker-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "test": "npm run build && playwright test"
+  },
+  "dependencies": {
+    "ag-grid-community": "36.3.0",
+    "ag-grid-react": "36.3.0",
+    "flatpickr": "4.6.13",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "vite": "8.3.8"
+  }
+}
