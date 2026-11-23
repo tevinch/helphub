@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Save an OCI image as a root filesystem](examples/oci-rootfs-archive) | Export a PRoot-Distro backup or a plain rootfs tarball and verify a restore. |
 | [MCode session export](examples/mcode-session-export) | Recover the first saved prompt after reopening a long terminal session. |
 | [Custom date range validation](examples/ag-grid-date-range) | Keep range errors and correction working in a custom AG Grid date picker. |
 | [Pinned Liberica Native Image Kit](examples/liberica-nik-pin) | Install a specific BellSoft build on a CI runner and compile a small Java program. |
