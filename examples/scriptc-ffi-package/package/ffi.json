@@ -1,0 +1,12 @@
+{
+  "ffi_format": 1,
+  "functions": [
+    {
+      "name": "exampleTriplePlusTwo",
+      "symbol": "example_triple_plus_two",
+      "params": ["f64"],
+      "returns": "f64"
+    }
+  ],
+  "libraries": ["./libnative_math.a"]
+}

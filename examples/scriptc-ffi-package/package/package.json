@@ -1,0 +1,19 @@
+{
+  "name": "example-native-math",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "os": ["linux"],
+  "cpu": ["arm64"],
+  "libc": ["glibc"],
+  "exports": {
+    ".": {
+      "scriptc": "./index.ts"
+    },
+    "./ffi.json": "./ffi.json"
+  },
+  "files": ["index.ts", "ffi.json", "libnative_math.a"],
+  "scriptc": {
+    "source": true
+  }
+}
