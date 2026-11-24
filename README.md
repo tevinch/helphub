@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Stage an existing fpm build](examples/fpm-offline-install) | Reuse a selected Fortran build during offline packaging. |
 | [Save an OCI image as a root filesystem](examples/oci-rootfs-archive) | Export a PRoot-Distro backup or a plain rootfs tarball and verify a restore. |
 | [MCode session export](examples/mcode-session-export) | Recover the first saved prompt after reopening a long terminal session. |
 | [Custom date range validation](examples/ag-grid-date-range) | Keep range errors and correction working in a custom AG Grid date picker. |

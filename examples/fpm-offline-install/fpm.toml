@@ -1,0 +1,16 @@
+name = "offline-demo"
+version = "0.1.0"
+
+[build]
+auto-executables = false
+
+[dependencies]
+message = { path = "vendor/message" }
+
+[preprocess.cpp]
+suffixes = ["f90"]
+
+[[executable]]
+name = "offline-demo"
+source-dir = "app"
+main = "main.f90"
