@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Custom HTML colors in Markwon](examples/markwon-html-colors) | Give inline HTML colors precedence over the default paragraph and heading colors. |
 | [Distribute a native library for scriptc](examples/scriptc-ffi-package) | Package a typed FFI declaration and native archive for a separate npm consumer. |
 | [Stage an existing fpm build](examples/fpm-offline-install) | Reuse a selected Fortran build during offline packaging. |
 | [Save an OCI image as a root filesystem](examples/oci-rootfs-archive) | Export a PRoot-Distro backup or a plain rootfs tarball and verify a restore. |

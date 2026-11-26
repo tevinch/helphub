@@ -1,0 +1,63 @@
+import org.gradle.api.artifacts.transform.InputArtifact
+import org.gradle.api.artifacts.transform.TransformAction
+import org.gradle.api.artifacts.transform.TransformOutputs
+import org.gradle.api.artifacts.transform.TransformParameters
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import java.util.zip.ZipFile
+
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+abstract class AarClasses implements TransformAction<TransformParameters.None> {
+    @InputArtifact
+    abstract Provider<FileSystemLocation> getInputArtifact()
+
+    @Override
+    void transform(TransformOutputs outputs) {
+        File aar = inputArtifact.get().asFile
+        File output = outputs.file(aar.name.replaceFirst(/\.aar$/, '-classes.jar'))
+        new ZipFile(aar).withCloseable { archive ->
+            archive.getInputStream(archive.getEntry('classes.jar')).withCloseable { input ->
+                output.withOutputStream { stream -> stream << input }
+            }
+        }
+    }
+}
+
+def artifactType = ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
+dependencies {
+    registerTransform(AarClasses) {
+        from.attribute(artifactType, 'aar')
+        to.attribute(artifactType, 'jar')
+    }
+    compileOnly 'org.robolectric:android-all:13-robolectric-9030017'
+    testImplementation 'org.robolectric:android-all:13-robolectric-9030017'
+    implementation 'io.noties.markwon:core:4.6.2'
+    implementation 'io.noties.markwon:html:4.6.2'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.18.1'
+}
+
+sourceSets.configureEach { sourceSet ->
+    def originalCompileClasspath = configurations.getByName(sourceSet.compileClasspathConfigurationName)
+    def originalRuntimeClasspath = configurations.getByName(sourceSet.runtimeClasspathConfigurationName)
+    compileClasspath = files(sourceSet.name == 'test' ? sourceSets.main.output : []) + originalCompileClasspath.incoming.artifactView {
+        attributes { attribute(artifactType, 'jar') }
+    }.files
+    runtimeClasspath = output + files(sourceSet.name == 'test' ? sourceSets.main.output : []) + originalRuntimeClasspath.incoming.artifactView {
+        attributes { attribute(artifactType, 'jar') }
+    }.files
+}
+
+test {
+    useJUnit()
+    maxHeapSize = '1g'
+    systemProperty 'robolectric.dependency.repo.url', 'https://repo.maven.apache.org/maven2'
+    testLogging { events 'passed', 'failed' }
+}
