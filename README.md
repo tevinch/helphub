@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [TerriaMap static share links](examples/terria-static-share) | Share and restore a map view on a static host |
 | [Krea2 Prompt Weight in ComfyUI](examples/krea2-prompt-weight) | Find the node, add it to a workflow, and open a saved example without model files. |
 | [Obsidian flashcards in Anki](examples/obsidian-anki-flashcards) | Create an Anki card from a Markdown note and update the same card after editing the answer. |
 | [Custom HTML colors in Markwon](examples/markwon-html-colors) | Give inline HTML colors precedence over the default paragraph and heading colors. |

@@ -1,0 +1,35 @@
+{
+  "homeCamera": {
+    "north": 40,
+    "south": 30,
+    "west": -125,
+    "east": -115
+  },
+  "viewerMode": "2d",
+  "catalog": [
+    {
+      "id": "sample-point",
+      "name": "Sample point",
+      "type": "geojson",
+      "url": "data/sample.geojson"
+    }
+  ],
+  "baseMaps": {
+    "items": [
+      {
+        "item": {
+          "id": "local-background",
+          "name": "Local background",
+          "type": "geojson",
+          "url": "data/background.geojson"
+        },
+        "image": "favicon.ico"
+      }
+    ],
+    "enabledBaseMaps": [
+      "local-background"
+    ],
+    "defaultBaseMapId": "local-background",
+    "previewBaseMapId": "local-background"
+  }
+}

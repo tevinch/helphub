@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Example marker" },
+      "geometry": { "type": "Point", "coordinates": [-120, 35] }
+    }
+  ]
+}

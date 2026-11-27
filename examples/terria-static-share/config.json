@@ -1,0 +1,9 @@
+{
+  "initializationUrls": ["demo", "static-share"],
+  "parameters": {
+    "appName": "Static Share Demo",
+    "showWelcomeMessage": false,
+    "serverConfigUrl": "static-server-config.json",
+    "shareUrl": "share"
+  }
+}
