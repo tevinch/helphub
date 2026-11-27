@@ -4,6 +4,7 @@ Runnable examples and focused guides for practical development questions. Each e
 
 | Example or guide | Use it to |
 | --- | --- |
+| [Folders-first SilverBullet sidebar](examples/silverbullet-folders-first) | Browse folders and pages in the same order with arrow keys |
 | [Read your own Mastodon boosts in Go](examples/mastodon-own-boosts) | Find the original post when a boost was made in another client |
 | [TerriaMap static share links](examples/terria-static-share) | Share and restore a map view on a static host |
 | [Krea2 Prompt Weight in ComfyUI](examples/krea2-prompt-weight) | Find the node, add it to a workflow, and open a saved example without model files. |
