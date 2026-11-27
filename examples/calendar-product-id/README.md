@@ -1,5 +1,25 @@
 # Set the product ID of a calendar-link export
 
+## calendar-link 2.12.0 and later
+
+Pass `productId` to `ics()` to set the product identifier on the exported calendar. Omit it to use the package's default.
+
+```js
+import { ics } from "calendar-link";
+
+const href = ics({
+  title: "Planning session",
+  start: "2027-01-11T09:00:00Z",
+  end: "2027-01-11T09:30:00Z",
+  uid: "planning-2027-01-11@example.com",
+  productId: "-//Field Notes//Schedule Export//EN",
+});
+```
+
+Use the resulting data URL as the `href` of a calendar download link. [calendar-link 2.12.0 release](https://github.com/AnandChowdhary/calendar-link/releases/tag/v2.12.0)
+
+## Projects pinned to 2.11.7
+
 In calendar-link 2.11.7, `ics(event)` returns a calendar data URL with a fixed `PRODID`. If your app publishes the download, you can set its product ID on the exported calendar. Pass the generated URL through [calendar-product-id.mjs](calendar-product-id.mjs) before serving or downloading it.
 
 ```js
@@ -21,7 +41,7 @@ const href = withCalendarProductId(
 
 Use `href` as the URL for your calendar download link. Choose a stable identifier for the application publishing the file. The helper takes the data URL from this version of `ics()`, replaces its calendar-level `PRODID`, and preserves the other calendar fields byte for byte after decoding. It escapes iCalendar text punctuation and folds long product IDs on UTF-8 character boundaries. The ID must be a single non-empty line. [calendar-link exporter](https://github.com/AnandChowdhary/calendar-link/blob/v2.11.7/src/index.ts#L213-L326) · [iCalendar product identifier](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.7.3)
 
-## Try it
+### Try the pinned example
 
 Run these commands from this example directory with Node.js 18 or later.
 
